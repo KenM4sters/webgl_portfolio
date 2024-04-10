@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>WebGL Demo</title>
+    <script src="src/main.ts" type="module"></script>
+    <link rel="stylesheet" href="src/style.css">
+  </head>
+  <body>
+    <canvas id="glcanvas"></canvas>
+  </body>
+  <script type="shader" id="vshader">
+    attribute vec4 vertex;
+    attribute vec4 color;
+    varying vec4 vColor;
+    void main(void) {
+      gl_Position = vertex;
+        vColor = color;
+    }
+    </script>
+    <script type="shader" id="fshader">
+    precision highp float;
+    varying vec4 vColor;
+    void main(void) {
+      gl_FragColor = vColor;
+    }
+    </script>
+</html>
