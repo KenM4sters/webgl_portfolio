@@ -50,6 +50,13 @@ export class RenderCommand
     }
 
     // Bind Buffer
+    static CreateBuffer() : WebGLBuffer 
+    {
+        const Id = gl.createBuffer();
+        if(!Id) throw new Error("RenderCommand | Failed to create buffer!");
+        return Id;
+    }
+
     static BindBuffer(Id : WebGLBuffer, type : BufferType) : void { 
         type == BufferType.Vertex ? gl.bindBuffer(gl.ARRAY_BUFFER, Id) 
             : gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Id);
@@ -61,9 +68,9 @@ export class RenderCommand
     }
 
     // Set Buffer Data
-    static SetVertexBufferData(vertices : Float32Array) : void 
+    static SetVertexBufferData(Id : WebGLBuffer, cachedVertices : Float32Array) : void 
     {
-        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, cachedVertices, gl.STATIC_DRAW);
     }
 
     static SetIndexBufferData(indices : Uint16Array) : void 
