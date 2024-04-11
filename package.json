@@ -11,5 +11,9 @@
   "devDependencies": {
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
+  },
+  "dependencies": {
+    "gl-matrix": "^3.4.3",
+    "lil-gui": "^0.19.2"
   }
 }
