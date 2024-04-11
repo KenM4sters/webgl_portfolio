@@ -1,4 +1,28 @@
-import { RenderCommand, TextureType, ImageConfig } from "./RenderCommand";
+import { gl } from "../main";
+import { RenderCommand } from "./RenderCommand";
+
+export enum TextureType 
+{
+    Tex2D,
+    CubeTex 
+}
+
+export enum ImageChannels 
+{
+    RGB,
+    RGBA 
+}
+
+export interface ImageConfig {
+    TargetType : TextureType;
+    MipMapLevel : number;
+    NChannels : ImageChannels;
+    Width : number;
+    Height : number;
+    Format : number;
+    DataType : number;
+};
+
 
 // Abstract Texture class to serve as a base for other classes such as the Texture2D and CubeTexture
 // classes.
@@ -84,3 +108,26 @@ export class CubeTexture extends Texture
     override Init() : void {}
     override LoadImage(): void {}
 };
+
+
+export function ConvertTextureTypeToNative(type : TextureType) : number 
+{
+    switch(type) 
+    {
+        case TextureType.Tex2D: return gl.TEXTURE_2D;
+        case TextureType.CubeTex: return gl.TEXTURE_CUBE_MAP;
+    }
+
+    return 0;
+}
+
+export function ConvertImageChannelsToNative(type : ImageChannels) : number 
+{
+    switch(type) 
+    {
+        case ImageChannels.RGB: return gl.RGB;
+        case ImageChannels.RGBA: return gl.RGBA;
+    }
+
+    return 0;
+}

@@ -10,19 +10,20 @@
     <canvas id="glcanvas"></canvas>
   </body>
   <script type="shader" id="vshader">
-    attribute vec4 vertex;
-    attribute vec4 color;
-    varying vec4 vColor;
-    void main(void) {
-      gl_Position = vertex;
-        vColor = color;
+    attribute vec3 aPosition;
+    attribute vec3 aNormal;
+    attribute vec2 aUV;
+
+    void main() {
+      gl_Position = vec4(aPosition, 1.0);
     }
-    </script>
-    <script type="shader" id="fshader">
+  </script>
+
+  <script type="shader" id="fshader">
     precision highp float;
-    varying vec4 vColor;
-    void main(void) {
-      gl_FragColor = vColor;
+
+    void main() {
+      gl_FragColor = vec4(0.1, 0.6, 1.0, 1.0);
     }
-    </script>
+  </script>
 </html>
