@@ -2,6 +2,7 @@ import RenderLayer, { FramebufferBits } from "../RenderLayer";
 import { IndexBuffer, VertexBuffer } from "./Buffer";
 import { BufferType, RenderCommand } from "./RenderCommand";
 import * as glm from "gl-matrix";
+import { gl } from "../App";
 import { Shader } from "./Shader";
 
 import VertexArray from "./VertexArray";
@@ -83,7 +84,7 @@ export default class Renderer
         var EBO = VAO.GetIndexBuffer();
         if(EBO && IndexBuffer.Id) 
         {
-            RenderCommand.BindBuffer(IndexBuffer.Id, BufferType.Index)
+            // RenderCommand.BindBuffer(IndexBuffer.Id, BufferType.Index)
             RenderCommand.DrawIndexed(EBO.GetUniqueSize() / EBO.GetUniqueIndices().BYTES_PER_ELEMENT , EBO.GetUniqueOffset());
         } else {
             RenderCommand.Draw(6);

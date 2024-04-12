@@ -56,6 +56,7 @@ export class RenderCommand
         // If there is then, we'll have to delete and create a new one, since it will be too small.
         // Otherwise, just set it with our vertex data and return void.
         const bufferSize = gl.getBufferParameter(gl.ARRAY_BUFFER, gl.BUFFER_SIZE);
+        
         if(!bufferSize) 
         {            
             gl.bufferData(gl.ARRAY_BUFFER, cachedVertexData, gl.STATIC_DRAW);
@@ -64,10 +65,11 @@ export class RenderCommand
         
         // Delete the old one since it won't be large enough to contain new vertex data.
         this.BindBuffer(Id, BufferType.Vertex);
-        gl.deleteBuffer(Id);
+        gl.deleteBuffer(Id.val);
 
         // Reallocate the Id with a new buffer, and set the new vertex data.
-        Id.val = gl.createBuffer() as WebGLBuffer;
+        Id.val = gl.createBuffer();
+        this.BindBuffer(Id, BufferType.Vertex);
         gl.bufferData(gl.ARRAY_BUFFER, cachedVertexData, gl.STATIC_DRAW);
     }
 
@@ -89,6 +91,7 @@ export class RenderCommand
 
         // Reallocate the Id with a new buffer, and set the new vertex data.
         Id.val = gl.createBuffer() as WebGLBuffer;
+        this.BindBuffer(Id, BufferType.Index);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cachedIndexData, gl.STATIC_DRAW);
     }
 
@@ -108,7 +111,7 @@ export class RenderCommand
 
     public static UnbindVertexArray() : void 
     {
-        gl.enableVertexAttribArray(0);
+        gl.bindVertexArray(null);
     }
 
     public static EnableVertexArray(layoutLoc : number) : void 
@@ -246,7 +249,7 @@ export class RenderCommand
     {
         gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, config.Width, config.Height);
         this.BindFramebuffer(FBO);
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, RBO);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, RBO.val);
         this.UnbindFramebuffer();
     }
     public static UnbindRenderbuffer() : void 

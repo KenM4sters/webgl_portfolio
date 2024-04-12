@@ -15,8 +15,8 @@ class Animus extends App
 
     Prepare() : void 
     {
+        this.renderer.PushLayer(this.scene);
         this.renderer.PushLayer(this.screenQuad);
-        // this.renderer.PushLayer(this.scene);
     }
 
     Run() : void 

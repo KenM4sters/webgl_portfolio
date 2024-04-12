@@ -20,40 +20,37 @@ export default class Scene extends RenderLayer
 
     override Prepare(): void 
     {
+        var elements : BufferAttribute[] = new Array<BufferAttribute>(
+            new BufferAttribute(ShaderDataType.Float3, "aPosition"),
+            new BufferAttribute(ShaderDataType.Float3, "aNormal"),
+            new BufferAttribute(ShaderDataType.Float2, "aUV")
+        );
 
-        // var vbo : VertexBuffer = new VertexBuffer(SQUARE_VERTCES_COMPLETE);
+        var layout : BufferAttribLayout = new BufferAttribLayout(elements);
+        var VBO = new VertexBuffer(SQUARE_VERTCES_COMPLETE);
+        VBO.SetLayout(layout);
 
-        // var elements : BufferAttribute[] = new Array<BufferAttribute>(
-        //     new BufferAttribute(ShaderDataType.Float3, "aPosition"),
-        //     new BufferAttribute(ShaderDataType.Float3, "aNormal"),
-        //     new BufferAttribute(ShaderDataType.Float2, "aUV")
-        // );
+        var EBO = new IndexBuffer(SQUARE_INDICES);
+        this.vertexArray = new VertexArray(VBO, EBO);
 
-        // var layout : BufferAttribLayout = new BufferAttribLayout(elements);
-        // var VBO = new VertexBuffer(SQUARE_VERTCES_COMPLETE);
-        // VBO.SetLayout(layout);
+        this.shader = Shader.Create("vBasicShader", "fBasicShader", "SCREEN_QUAD_SHADER");
 
-        // var EBO = new IndexBuffer(SQUARE_INDICES);
-        // this.vertexArray = new VertexArray(VBO, EBO);
+        var imageConfig : ImageConfig = {
+            TargetType: TextureType.Tex2D,
+            MipMapLevel: 0,
+            NChannels: ImageChannels.RGBA,
+            Width: window.innerWidth,
+            Height: window.innerHeight,
+            Format: ImageChannels.RGBA,
+            DataType: ShaderDataType.UCHAR
+        }
 
-        // this.shader = Shader.Create("SCREEN_QUAD_SHADER", "F_BASIC_SHADER", "V_BASIC_SHADER");
-
-        // var imageConfig : ImageConfig = {
-        //     TargetType: TextureType.Tex2D,
-        //     MipMapLevel: 0,
-        //     NChannels: ImageChannels.RGBA,
-        //     Width: window.innerWidth,
-        //     Height: window.innerHeight,
-        //     Format: ImageChannels.RGBA,
-        //     DataType: ShaderDataType.UCHAR
-        // }
-
-        // this.renderTarget = new Framebuffer(imageConfig);
+        this.renderTarget = new Framebuffer(imageConfig);
     }
 
     override Render(): void 
     {
-        // Renderer.DrawVAO(this.vertexArray, this.shader);
+        Renderer.DrawVAO(this.vertexArray, this.shader);
     }
 
     Push(obj : Mesh | Light) : void 
