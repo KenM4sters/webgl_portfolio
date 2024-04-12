@@ -1,6 +1,5 @@
 import Renderer from "./Renderer/Renderer";
 
-
 export var canvas = document.querySelector("#glcanvas") as HTMLCanvasElement | null;
 if (canvas == null) throw new Error("#glcanvas cannot be found!");
 

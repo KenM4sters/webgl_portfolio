@@ -5,6 +5,12 @@ interface Buffer {
     Init() : void;
 };
 
+
+export class Id <T> 
+{
+    constructor(public val: T) {}
+}
+
 //============================================================================
 // Vertex Buffer
 //============================================================================
@@ -117,7 +123,7 @@ export class VertexBuffer implements Buffer
     }
 
     
-    public static Id : WebGLBuffer | null = null;
+    public static Id : Id<WebGLBuffer | null> = {val: null}
     public static cachedVertexData : Float32Array = new Float32Array();
     public static cachedLayout : Array<BufferAttribLayout>;
     public static cachedSize : number = 0;
@@ -130,8 +136,8 @@ export class VertexBuffer implements Buffer
     Init() : void
     {
         // Only create a new buffer if one doesn't exist already.
-        if(!VertexBuffer.Id)
-            VertexBuffer.Id = RenderCommand.CreateBuffer();
+        if(!VertexBuffer.Id.val)
+            VertexBuffer.Id = {val: RenderCommand.CreateBuffer()};
 
         RenderCommand.BindBuffer(VertexBuffer.Id, BufferType.Vertex);
         RenderCommand.SetVertexBufferData(VertexBuffer.Id, VertexBuffer.cachedVertexData);
@@ -178,7 +184,7 @@ export class IndexBuffer implements Buffer
 
     public static cachedIndices : Uint16Array = new Uint16Array();
     public static cachedSize : number = 0;
-    public static Id : WebGLBuffer | null = null;
+    public static Id : Id<WebGLBuffer | null> = {val: null}
 
     private uniqueIndices : Uint16Array;
     private uniqueOffset : number;
@@ -186,8 +192,7 @@ export class IndexBuffer implements Buffer
 
     Init() : void
     {
-        if(!IndexBuffer.Id)
-                IndexBuffer.Id = RenderCommand.CreateBuffer();
+        if(!IndexBuffer.Id.val) IndexBuffer.Id.val = RenderCommand.CreateBuffer();
 
         RenderCommand.BindBuffer(IndexBuffer.Id, BufferType.Index);
         RenderCommand.SetIndexBufferData(IndexBuffer.Id, IndexBuffer.cachedIndices);

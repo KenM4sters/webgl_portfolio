@@ -1,8 +1,9 @@
 import {gl} from "../App.ts";
 import * as glm from "gl-matrix";
-import { VertexBuffer, IndexBuffer } from "./Buffer.ts";
+import { VertexBuffer, IndexBuffer, Id } from "./Buffer.ts";
 import { TextureType, ImageConfig, ImageChannels, ConvertTextureTypeToNative, ConvertImageChannelsToNative } from "./Texture.ts";
 import { ConvertBitsToNative, FramebufferBits } from "../RenderLayer.ts";
+import { ConvertShaderTypeToNative, GetShaderDataType } from "./Shader.ts";
 
 export enum BufferType 
 {
@@ -37,9 +38,10 @@ export class RenderCommand
         return Id;
     }
 
-    public static BindBuffer(Id : WebGLBuffer, type : BufferType) : void { 
-        type == BufferType.Vertex ? gl.bindBuffer(gl.ARRAY_BUFFER, Id) 
-            : gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Id);
+    public static BindBuffer(Id : Id<WebGLBuffer | null>, type : BufferType) : void { 
+        if(Id.val && type == BufferType.Vertex) gl.bindBuffer(gl.ARRAY_BUFFER, Id.val) 
+        else if(Id.val && type == BufferType.Index) gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Id.val);
+        else throw new Error("RenderCommand | Failed to bind buffer! Id::Val is null!");
     }
 
     public static UnbindBuffer(type : BufferType) {
@@ -48,7 +50,7 @@ export class RenderCommand
     }
 
     // Set Buffer Data
-    public static SetVertexBufferData(Id : WebGLBuffer, cachedVertexData : Float32Array) : void 
+    public static SetVertexBufferData(Id : Id<WebGLBuffer | null>, cachedVertexData : Float32Array) : void 
     {
         // Check if there's any data in the existing buffer bound to Id.
         // If there is then, we'll have to delete and create a new one, since it will be too small.
@@ -62,14 +64,14 @@ export class RenderCommand
         
         // Delete the old one since it won't be large enough to contain new vertex data.
         this.BindBuffer(Id, BufferType.Vertex);
-        gl.deleteBuffer(gl.ARRAY_BUFFER);
+        gl.deleteBuffer(Id);
 
         // Reallocate the Id with a new buffer, and set the new vertex data.
-        Id = gl.createBuffer() as WebGLBuffer;
+        Id.val = gl.createBuffer() as WebGLBuffer;
         gl.bufferData(gl.ARRAY_BUFFER, cachedVertexData, gl.STATIC_DRAW);
     }
 
-    public static SetIndexBufferData(Id : WebGLBuffer, cachedIndexData : Uint16Array) : void 
+    public static SetIndexBufferData(Id : Id<WebGLBuffer | null>, cachedIndexData : Uint16Array) : void 
     {
         // Check if there's any data in the existing buffer bound to Id.
         // If there is then, we'll have to delete and create a new one, since it will be too small.
@@ -83,10 +85,10 @@ export class RenderCommand
 
         // Delete the old one since it won't be large enough to contain new vertex data.
         this.BindBuffer(Id, BufferType.Index);
-        gl.deleteBuffer(gl.ELEMENT_ARRAY_BUFFER);
+        gl.deleteBuffer(Id.val);
 
         // Reallocate the Id with a new buffer, and set the new vertex data.
-        Id = gl.createBuffer() as WebGLBuffer;
+        Id.val = gl.createBuffer() as WebGLBuffer;
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cachedIndexData, gl.STATIC_DRAW);
     }
 
@@ -98,9 +100,10 @@ export class RenderCommand
         if(!temp) throw new Error("RenderCommand | Failed to create vertex array object!");
         return temp;
     }
-    public static BindVertexArray(Id : WebGLVertexArrayObject) : void
+    public static BindVertexArray(Id : Id<WebGLVertexArrayObject | null>) : void
     {
-        gl.bindVertexArray(Id);
+        if(Id.val) gl.bindVertexArray(Id.val);
+        else throw new Error("RenderCommand | Failed to bind vertex array object! Id::val is null!")
     }
 
     public static UnbindVertexArray() : void 
@@ -123,41 +126,55 @@ export class RenderCommand
     public static CreateShader() : WebGLProgram
     {
         const temp : WebGLProgram | null = gl.createProgram();
-        if(temp) 
-            return temp;
+        if(temp) return temp;
         throw new Error("RenderCommand | Failed to create shader program!");
     }
-    public static UseShader(Id : WebGLProgram) : void { gl.useProgram(Id); }
-    public static ReleaseShader() : void { gl.useProgram(0); }
 
-    public static SetInt(Id : WebGLProgram, name : string, val : number) : void 
-    {
-        gl.uniform1i(gl.getUniformLocation(Id, name), val);
+    public static UseShader(Id : Id<WebGLProgram | null>) : void 
+    { 
+        if(Id.val) gl.useProgram(Id.val); 
+        else throw new Error("RenderCommand | Failed to use shader program! Id::Val is null!");
     }
 
-    public static SetFloat(Id : WebGLProgram, name : string, val : number) : void 
-    {
-        gl.uniform1f(gl.getUniformLocation(Id, name), val);
+    public static ReleaseShader() : void 
+    { 
+        gl.useProgram(0); 
     }
 
-    public static SetVec3f(Id : WebGLProgram, name : string, val : glm.vec3) : void 
+    public static SetInt(Id : Id<WebGLProgram | null>, name : string, val : number) : void 
     {
-        gl.uniform3f(gl.getUniformLocation(Id, name), val[0], val[1], val[2]);
+        if(Id.val) gl.uniform1i(gl.getUniformLocation(Id.val, name), val); 
+        else throw new Error("RenderCommand | Failed to use shader program! Id::Val is null!")
     }
 
-    public static SetVec4f(Id : WebGLProgram, name : string, val : glm.vec4) : void 
+    public static SetFloat(Id : Id<WebGLProgram | null>, name : string, val : number) : void 
     {
-        gl.uniform4f(gl.getUniformLocation(Id, name), val[0], val[1], val[2], val[3]);
+        if(Id.val) gl.uniform1f(gl.getUniformLocation(Id.val, name), val); 
+        else throw new Error("RenderCommand | Failed to use shader program! Id::Val is null!")
     }
 
-    public static SetMat3f(Id : WebGLProgram, name : string, val : glm.mat3) : void 
+    public static SetVec3f(Id : Id<WebGLProgram | null>, name : string, val : glm.vec3) : void 
     {
-        gl.uniformMatrix3fv(gl.getUniformLocation(Id, name), false, val);
+        if(Id.val) gl.uniform3f(gl.getUniformLocation(Id.val, name), val[0], val[1], val[2]); 
+        else throw new Error("RenderCommand | Failed to use shader program! Id::Val is null!")
     }
 
-    public static SetMat4f(Id : WebGLProgram, name : string, val : glm.mat4) : void 
+    public static SetVec4f(Id : Id<WebGLProgram | null>, name : string, val : glm.vec4) : void 
     {
-        gl.uniformMatrix4fv(gl.getUniformLocation(Id, name), false, val);
+        if(Id.val) gl.uniform4f(gl.getUniformLocation(Id.val, name), val[0], val[1], val[2], val[3]); 
+        else throw new Error("RenderCommand | Failed to use shader program! Id::Val is null!")
+    }
+
+    public static SetMat3f(Id : Id<WebGLProgram | null>, name : string, val : glm.mat3) : void 
+    {
+        if(Id.val) gl.uniformMatrix3fv(gl.getUniformLocation(Id.val, name), false, val); 
+        else throw new Error("RenderCommand | Failed to use shader program! Id::Val is null!")
+    }
+
+    public static SetMat4f(Id : Id<WebGLProgram | null>, name : string, val : glm.mat4) : void 
+    {
+        if(Id.val) gl.uniformMatrix4fv(gl.getUniformLocation(Id.val, name), false, val); 
+        else throw new Error("RenderCommand | Failed to use shader program! Id::Val is null!")
     }
 
     // Textures
@@ -168,10 +185,10 @@ export class RenderCommand
             return temp;
         throw new Error("RenderCommand | Failed to create texture!");
     }
-    public static BindTexture(Id : WebGLTexture, type : TextureType, texUnit : number = 0) : void 
+    public static BindTexture(Id : Id<WebGLTexture | null>, type : TextureType, texUnit : number = 0) : void 
     {
         gl.activeTexture(gl.TEXTURE0 + texUnit);
-        gl.bindTexture(ConvertTextureTypeToNative(type), Id);
+        gl.bindTexture(ConvertTextureTypeToNative(type), Id.val);
     }
     public static UnBindTexture(type : TextureType, texUnit : number = 0) : void 
     {
@@ -180,11 +197,11 @@ export class RenderCommand
     }
     public static SetTexture2DArray(config : ImageConfig, data : Uint8Array | null) : void 
     {
-        gl.texImage2D(gl.TEXTURE_2D, config.MipMapLevel, ConvertImageChannelsToNative(config.NChannels), config.Width, config.Height, 0, config.Format, config.DataType, data);
+        gl.texImage2D(gl.TEXTURE_2D, config.MipMapLevel, ConvertImageChannelsToNative(config.NChannels), config.Width, config.Height, 0, ConvertImageChannelsToNative(config.Format), GetShaderDataType(config.DataType), data);
     }  
     public static SetTexture2DImage(config : ImageConfig, data : HTMLImageElement) : void 
     {
-        gl.texImage2D(gl.TEXTURE_2D, config.MipMapLevel, ConvertImageChannelsToNative(config.NChannels), config.Format, config.DataType, data);
+        gl.texImage2D(gl.TEXTURE_2D, config.MipMapLevel, ConvertImageChannelsToNative(config.NChannels), ConvertImageChannelsToNative(config.Format), GetShaderDataType(config.DataType), data);
     }
     public static GenerateMipMap(type : TextureType) : void 
     {
@@ -199,18 +216,18 @@ export class RenderCommand
             return temp;
         throw new Error("RenderCommand | Failed to create framebuffer!");
     }
-    public static BindFramebuffer(Id : WebGLFramebuffer) : void
+    public static BindFramebuffer(Id : Id<WebGLFramebuffer | null>) : void
     {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, Id);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, Id.val);
     }
     public static UnbindFramebuffer() : void
     {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, 0);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
-    public static SetFramebufferColorAttachment(targetTexture : WebGLTexture, unit : number = 0) : void
+    public static SetFramebufferColorAttachment(targetTexture : Id<WebGLTexture | null>, unit : number = 0) : void
     {
         const attachmentUnit = gl.COLOR_ATTACHMENT0 + unit;
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentUnit, gl.TEXTURE_2D, targetTexture, 0);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentUnit, gl.TEXTURE_2D, targetTexture.val, 0);
     }
 
     // Renderbuffers
@@ -221,11 +238,11 @@ export class RenderCommand
             return temp;
         throw new Error("RenderCommand | Failed to create renderbuffer!");
     }
-    public static BindRenderbuffer(Id : WebGLRenderbuffer) : void 
+    public static BindRenderbuffer(Id : Id<WebGLRenderbuffer | null>) : void 
     {
-        gl.bindRenderbuffer(gl.RENDERBUFFER, Id);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, Id.val);
     }
-    public static SetRenderbufferDepthAttachment(RBO : WebGLRenderbuffer, FBO: WebGLFramebuffer, config : ImageConfig) : void 
+    public static SetRenderbufferDepthAttachment(RBO : Id<WebGLRenderbuffer | null>, FBO: Id<WebGLFramebuffer | null>, config : ImageConfig) : void 
     {
         gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, config.Width, config.Height);
         this.BindFramebuffer(FBO);
@@ -234,7 +251,7 @@ export class RenderCommand
     }
     public static UnbindRenderbuffer() : void 
     {
-        gl.bindRenderbuffer(gl.RENDERBUFFER, 0);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
     } 
 
     public static ReadFramebufferResults(buffer : {value: Uint8Array}) : void 

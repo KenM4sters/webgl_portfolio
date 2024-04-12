@@ -1,6 +1,7 @@
 import RenderLayer, { FramebufferBits } from "../RenderLayer";
 import { IndexBuffer, VertexBuffer } from "./Buffer";
 import { BufferType, RenderCommand } from "./RenderCommand";
+import * as glm from "gl-matrix";
 import { Shader } from "./Shader";
 
 import VertexArray from "./VertexArray";
@@ -27,6 +28,7 @@ export default class Renderer
 
     public PushLayer(layer : RenderLayer) : void
     {
+        layer.Prepare();
         this.layers.push(layer);
     }
 
@@ -51,6 +53,7 @@ export default class Renderer
         RenderCommand.EnableDepthTest(config.DepthTest);
         RenderCommand.ClearColorBufferBit(config.ClearColorBit);
         RenderCommand.ClearDepthBufferBit(config.ClearDepthBit);
+        RenderCommand.SetClearColor([0.1, 0.1, 0.1, 1.0]);
 
         // Render the layer.
         layer.Render();
@@ -70,10 +73,10 @@ export default class Renderer
     //============================================================
 
     // Renders the VAO to the target framebuffer of the render layer that is currently active.
-    public DrawVAO(VAO : VertexArray, shader : Shader) : void {
+    public static DrawVAO(VAO : VertexArray, shader : Shader) : void {
         // Bind the vertex array object and shader program.
         RenderCommand.BindVertexArray(VAO.GetId());
-        RenderCommand.UseShader(shader.GetId() as WebGLProgram);
+        RenderCommand.UseShader(shader.GetId());
 
 
         // Only call DrawIndexed() if the index buffer isn't null.

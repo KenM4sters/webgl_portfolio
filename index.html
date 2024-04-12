@@ -9,7 +9,7 @@
   <body>
     <canvas id="glcanvas"></canvas>
   </body>
-  <script type="shader" id="vshader">
+  <script type="shader" id="vBasicShader">
     attribute vec3 aPosition;
     attribute vec3 aNormal;
     attribute vec2 aUV;
@@ -19,7 +19,7 @@
     }
   </script>
 
-  <script type="shader" id="fshader">
+  <script type="shader" id="fBasicShader">
     precision highp float;
 
     void main() {

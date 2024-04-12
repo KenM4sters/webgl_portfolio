@@ -1,4 +1,4 @@
-import { VertexBuffer, IndexBuffer } from "./Buffer";
+import { VertexBuffer, IndexBuffer, Id } from "./Buffer";
 import { BufferType, RenderCommand } from "./RenderCommand";
 import { ConvertShaderTypeToNative } from "./Shader";
 
@@ -13,21 +13,21 @@ export default class VertexArray
     } 
     
     // Getters
-    GetId() : WebGLVertexArrayObject { return this.Id; }
+    GetId() : Id<WebGLVertexArrayObject | null> { return this.Id; }
     GetVertexBuffer() : VertexBuffer { return this.vertexBuffer; }
     GetIndexBuffer() : IndexBuffer | null { return this.indexBuffer; }
 
-    private Id : WebGLVertexArrayObject = 0;
+    private Id : Id<WebGLVertexArrayObject | null> = {val: null};
     private vertexBuffer : VertexBuffer; 
     private indexBuffer : IndexBuffer | null = null;
 
     Init() : void 
     {
-        this.Id = RenderCommand.CreateVertexArray();
+        this.Id = {val: RenderCommand.CreateVertexArray()};
         RenderCommand.BindVertexArray(this.Id);
-        RenderCommand.BindBuffer(VertexBuffer.Id as WebGLBuffer, BufferType.Vertex);
+        RenderCommand.BindBuffer(VertexBuffer.Id, BufferType.Vertex);
         if(this.indexBuffer)
-            RenderCommand.BindBuffer(IndexBuffer.Id as WebGLBuffer, BufferType.Index);
+            RenderCommand.BindBuffer(IndexBuffer.Id, BufferType.Index);
  
         var layoutLoc = 0;
         for(const attrib of this.vertexBuffer.GetUniqueLayout().GetAttributes()) 

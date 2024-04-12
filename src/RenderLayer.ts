@@ -14,19 +14,14 @@ export interface RenderConfig
     ClearDepthBit : boolean;
 };
 
+
+
 export default abstract class RenderLayer 
 {
-    constructor() 
-    {
+    constructor() {}
 
-    }
-
-
-    Render() 
-    {
-
-    }
-
+    abstract Prepare() : void;
+    abstract Render() : void;
 
     // Get/Set the framebuffer that this layer renders to.
     GetRenderTarget() : Framebuffer | null { return this.renderTarget; }
@@ -39,9 +34,13 @@ export default abstract class RenderLayer
     protected renderTarget : Framebuffer | null = null;
     protected renderConfig : RenderConfig = 
     {
-        depthTest : true
+        DepthTest : true,
+        ClearColorBit: true,
+        ClearDepthBit: true
     };
 };
+
+
 
 
 export function ConvertBitsToNative(type: FramebufferBits) : number 

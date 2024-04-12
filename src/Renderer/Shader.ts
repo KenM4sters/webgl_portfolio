@@ -1,15 +1,16 @@
 import {gl} from "../App.ts";
+import { Id } from "./Buffer.ts";
 
 
 
 export enum ShaderDataType 
 {
-    None = 0, Float, Float2, Float3, Float4, Mat3f, Mat4f, Int, Int2, Int3, Int4, Bool
+    None = 0, Float, Float2, Float3, Float4, Mat3f, Mat4f, Int, Int2, Int3, Int4, Bool, UCHAR
 }
 
 export class Shader 
 {
-    private ID : WebGLProgram | null = 0;
+    private ID : Id<WebGLProgram | null> = {val : null};
     private debugName : string = "";
 
     constructor(vScriptId : string, fScriptId : string, name : string) 
@@ -25,7 +26,7 @@ export class Shader
     
 
     // Getters 
-    GetId() : WebGLProgram | null { return this.ID; }
+    GetId() : Id<WebGLProgram | null> { return this.ID; }
     GetName() : string { return this.debugName; }
     // Setters
     SetName(name : string) { this.debugName = name; }
@@ -55,16 +56,16 @@ export class Shader
 
         // Thirdly, we need to link the 2 shaders into a single shader program that we can use/release
         // as and when we want to use the two shaders.
-        this.ID = gl.createProgram();
-        if(this.ID == null) throw new Error("Failed to create shader program!");
-        gl.attachShader(this.ID, vShader);
-        gl.attachShader(this.ID, fShader);
-        gl.linkProgram(this.ID);
-        if (!gl.getProgramParameter(this.ID, gl.LINK_STATUS)) {
+        this.ID = {val : gl.createProgram()};
+        if(this.ID.val == null) throw new Error("Failed to create shader program!");
+        gl.attachShader(this.ID.val, vShader);
+        gl.attachShader(this.ID.val, fShader);
+        gl.linkProgram(this.ID.val);
+        if (!gl.getProgramParameter(this.ID.val, gl.LINK_STATUS)) {
             console.warn("Could not initialise shaders");
             console.log(gl.getProgramInfoLog(this.ID));
         }
-        gl.useProgram(this.ID);        
+        gl.useProgram(this.ID.val);        
     }
 };
 
@@ -84,6 +85,7 @@ export function GetShaderDataType(type: ShaderDataType) : number
         case ShaderDataType.Int3:       return 4 * 3;
         case ShaderDataType.Int4:       return 4 * 4;
         case ShaderDataType.Bool:       return 1;
+        case ShaderDataType.UCHAR:      return gl.UNSIGNED_BYTE;
     }
     console.warn("GetShaderDataType() | Type is unknown! Returning 0!");
     return 0;

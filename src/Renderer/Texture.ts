@@ -1,5 +1,7 @@
 import { gl } from "../App.ts";
+import { Id } from "./Buffer.ts";
 import { RenderCommand } from "./RenderCommand";
+import { ShaderDataType } from "./Shader.ts";
 
 export enum TextureType 
 {
@@ -19,8 +21,8 @@ export interface ImageConfig {
     NChannels : ImageChannels;
     Width : number;
     Height : number;
-    Format : number;
-    DataType : number;
+    Format : ImageChannels;
+    DataType : ShaderDataType;
 };
 
 
@@ -34,7 +36,7 @@ abstract class Texture
         this.Init();
     }
 
-    protected Id : WebGLTexture = 0;
+    protected Id : Id<WebGLTexture | null> = {val: null};
     protected config : ImageConfig;
     protected data : Uint8Array | HTMLImageElement | null = new Uint8Array([255, 0, 255, 255]);
 
@@ -42,7 +44,7 @@ abstract class Texture
     abstract LoadImage(filepath : string) : void;
 
     // Getters
-    GetId() : WebGLTexture { return this.Id; }
+    GetId() : Id<WebGLTexture | null> { return this.Id; }
     GetConfig() : ImageConfig { return this.config; }
     GetData() : Uint8Array | HTMLImageElement | null { return this.data; }
 
@@ -65,7 +67,7 @@ export class Texture2D extends Texture
 
     override Init() : void 
     {
-        this.Id = RenderCommand.CreateTexture();
+        this.Id = {val: RenderCommand.CreateTexture()};
         RenderCommand.BindTexture(this.Id, TextureType.Tex2D, 0);
         RenderCommand.SetTexture2DArray(this.config, null);
     }
