@@ -60,7 +60,7 @@ export class BufferAttribLayout
         for(const element of this.attributes) 
         {
             element.Offset = offset;
-            offset = element.Size;
+            offset += element.Size;
             this.stride += element.Size;
         }
     }

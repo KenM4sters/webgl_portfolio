@@ -1,4 +1,4 @@
-import { gl } from "../main";
+import { gl } from "../App.ts";
 import { RenderCommand } from "./RenderCommand";
 
 export enum TextureType 
@@ -59,7 +59,8 @@ export class Texture2D extends Texture
     constructor(config : ImageConfig, data : Uint8Array | null = null) 
     {
         super(config);
-        this.data = data
+        if(data)
+            this.data = data
     }
 
     override Init() : void 

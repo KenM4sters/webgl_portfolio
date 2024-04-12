@@ -1,5 +1,5 @@
-import { ImageConfig, RenderCommand } from "./RenderCommand";
-import { Texture2D } from "./Texture";
+import { RenderCommand } from "./RenderCommand";
+import { Texture2D, ImageConfig } from "./Texture";
 
 
 export default class Framebuffer 

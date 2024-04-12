@@ -1,4 +1,4 @@
-import {gl} from "../main.ts";
+import {gl} from "../App.ts";
 
 
 

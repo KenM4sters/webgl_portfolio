@@ -1,4 +1,3 @@
-import { gl } from "../main";
 import { VertexBuffer, IndexBuffer } from "./Buffer";
 import { BufferType, RenderCommand } from "./RenderCommand";
 import { ConvertShaderTypeToNative } from "./Shader";

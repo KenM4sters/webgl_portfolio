@@ -1,27 +1,29 @@
-import {gl} from "./main.ts"
-import Renderer from "./Renderer/Renderer.ts";
-import { VertexBuffer, BufferAttribLayout, BufferAttribute, IndexBuffer } from "./Renderer/Buffer.ts";
-import VertexArray from "./Renderer/VertexArray.ts";
-import { Shader, ShaderDataType } from "./Renderer/Shader.ts";
-import { BufferType, RenderCommand } from "./Renderer/RenderCommand.ts";
+import { gl } from "./App";
+import PerspectiveCamera from "./Camera/PerspectiveCamera";
+import { Light } from "./Light"
+import { Mesh } from "./Mesh"
+import RenderLayer from "./RenderLayer";
+import { BufferAttribLayout, BufferAttribute, IndexBuffer, VertexBuffer } from "./Renderer/Buffer";
+import { Shader, ShaderDataType } from "./Renderer/Shader";
+import VertexArray from "./Renderer/VertexArray";
 
-export default class App {
-    constructor() 
-    {
-        this.InitTriangle();
-        this.loop();
+export default class Scene extends RenderLayer
+{
+    constructor(camera : PerspectiveCamera) {
+        super();
+        this.camera = camera;
+        this.Prepare();
     }
-    private renderer = new Renderer() as Renderer;
     private shader !: Shader;
     private VAO !: VertexArray;
-    
-    InitTriangle() : void
+
+    Prepare() 
     {
         var vertices = new Float32Array([
-            1.0,  1.0, 0.0,  0.0, 0.0, 1.0,   1.0, 1.0,  
-            1.0, -1.0, 0.0,  0.0, 0.0, 1.0,   1.0, 0.0,   
-            -1.0, -1.0, 0.0,  0.0, 0.0, 1.0,  0.0, 0.0,   
-            -1.0,  1.0, 0.0,  0.0, 0.0, 1.0,  0.0, 1.0  
+            0.5,  0.5, 0.0,  0.0, 0.0, 1.0,   1.0, 1.0,  
+            0.5, -0.5, 0.0,  0.0, 0.0, 1.0,   1.0, 0.0,   
+            -0.5, -0.5, 0.0,  0.0, 0.0, 1.0,  0.0, 0.0,   
+            -0.5,  0.5, 0.0,  0.0, 0.0, 1.0,  0.0, 1.0  
         ]);
 
         var indices = new Uint16Array([
@@ -47,14 +49,10 @@ export default class App {
         this.VAO = new VertexArray(VBO, EBO);
 
         gl.enable(gl.DEPTH_TEST);
-
-    }
-
-    DrawTriangle() : void
-    {
-        this.renderer.DrawVAO(this.VAO, this.shader);
-    }
     
+    
+    }   
+
     loop() : void
     {
         // Set clear color to black, fully opaque
@@ -63,7 +61,26 @@ export default class App {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         this.renderer.DrawVAO(this.VAO, this.shader);
-
         window.requestAnimationFrame(() => this.loop())
-    }    
+    } 
+
+
+    
+
+    Push(obj : Mesh | Light) : void 
+    {
+        this.sceneObjects.push(obj);
+    }
+
+    Traverse(callback: (child : Mesh | Light) => {}) 
+    {
+        for(const obj of this.sceneObjects) 
+        {
+            callback(obj);
+        }
+    }
+
+    public sceneObjects : Array<Mesh | Light> = new Array<Mesh | Light>();
+    public camera : PerspectiveCamera;
+
 };

@@ -1,7 +1,8 @@
-import {gl} from "../main.ts";
+import {gl} from "../App.ts";
 import * as glm from "gl-matrix";
 import { VertexBuffer, IndexBuffer } from "./Buffer.ts";
 import { TextureType, ImageConfig, ImageChannels, ConvertTextureTypeToNative, ConvertImageChannelsToNative } from "./Texture.ts";
+import { ConvertBitsToNative, FramebufferBits } from "../RenderLayer.ts";
 
 export enum BufferType 
 {
@@ -81,7 +82,7 @@ export class RenderCommand
         }
 
         // Delete the old one since it won't be large enough to contain new vertex data.
-        this.BindBuffer(Id, BufferType.Vertex);
+        this.BindBuffer(Id, BufferType.Index);
         gl.deleteBuffer(gl.ELEMENT_ARRAY_BUFFER);
 
         // Reallocate the Id with a new buffer, and set the new vertex data.
@@ -236,15 +237,39 @@ export class RenderCommand
         gl.bindRenderbuffer(gl.RENDERBUFFER, 0);
     } 
 
+    public static ReadFramebufferResults(buffer : {value: Uint8Array}) : void 
+    {
+    }
+
+
+    // Rendering
+    public static EnableDepthTest(b : boolean) : void
+    {
+        b ? gl.enable(gl.DEPTH_TEST) : gl.disable(gl.DEPTH_TEST);
+    }
+    
+    public static SetClearColor(color : glm.vec4) : void
+    {
+        gl.clearColor(color[0], color[1], color[2], color[3]);
+    }
+
+    public static ClearColorBufferBit(b : boolean) : void 
+    {
+        b ? gl.clear(gl.COLOR_BUFFER_BIT) : null;
+    }
+    public static ClearDepthBufferBit(b : boolean) : void 
+    {
+        b ? gl.clear(gl.DEPTH_BUFFER_BIT) : null;
+    }
 
     // Draw Commands
     public static Draw(nVertices : number) : void 
     {
         gl.drawArrays(gl.TRIANGLES, 0, nVertices);
     }
-    public static DrawIndexed(size : number, offset : number) : void
+    public static DrawIndexed(count : number, offset : number) : void
     {
-        gl.drawElements(gl.TRIANGLES, size, gl.UNSIGNED_INT, offset);
+        gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, offset);
     }
 
 };
