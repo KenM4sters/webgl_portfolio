@@ -1,23 +1,21 @@
-import RenderLayer, { FramebufferBits } from "../RenderLayer";
-import { IndexBuffer, VertexBuffer } from "./Buffer";
 import { BufferType, RenderCommand } from "./RenderCommand";
-import * as glm from "gl-matrix";
-import { gl } from "../App";
 import { Shader } from "./Shader";
-
 import VertexArray from "./VertexArray";
+import RenderLayer from "../RenderLayer";
+import { IndexBuffer } from "./Buffer";
+import { Texture2D } from "./Texture";
 
 export class RenderResult 
 {
-    constructor() 
+    constructor(result : Texture2D | null) 
     {
-
+        this.result = result;
     }
 
-    GetResult() : Uint8Array {return this.result;}
-    SetResult(result : Uint8Array) : void { this.result = result; }
+    GetResult() : Texture2D | null {return this.result;}
+    SetResult(result : Texture2D | null) : void { this.result = result; }
 
-    private result : Uint8Array = new Uint8Array();
+    private result !: Texture2D | null;
 };
 
 
@@ -64,6 +62,13 @@ export default class Renderer
 
     }
 
+    // Getters & Setters
+    GetRenderLayers() : Array<RenderLayer> { return this.layers; }
+    GetRenderResult(key : string) : RenderResult | null 
+    {
+        if(this.results[key]) return this.results[key];
+        else throw new Error(`Renderer | Failed to find render result with key : ${key}`);
+    }
 
 
 
@@ -78,7 +83,6 @@ export default class Renderer
         // Bind the vertex array object and shader program.
         RenderCommand.BindVertexArray(VAO.GetId());
         RenderCommand.UseShader(shader.GetId());
-
 
         // Only call DrawIndexed() if the index buffer isn't null.
         var EBO = VAO.GetIndexBuffer();
@@ -103,7 +107,7 @@ export default class Renderer
 
 
     // Holds all the layers that the renderer will run through.
-    // Rememder - Order here matters: the renderer will iterate through this from [0] to [length-1].
+    // Remembder - Order here matters: the renderer will iterate through this from [0] to [length-1].
     private layers : Array<RenderLayer> = new Array<RenderLayer>();
 
     // Currently not being used, but I think it could come in handy down the road.

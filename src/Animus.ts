@@ -1,5 +1,4 @@
 import App from "./App.ts"
-import Renderer from "./Renderer/Renderer.ts";
 import Scene from "./Layers/Scene.ts";
 import PerspectiveCamera from "./Camera/PerspectiveCamera.ts"
 import ScreenQuad from "./Layers/ScreenQuad.ts";

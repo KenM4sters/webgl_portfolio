@@ -1,4 +1,3 @@
-import { gl } from "../App";
 import PerspectiveCamera from "../Camera/PerspectiveCamera";
 import { Light } from "../Light"
 import { Mesh } from "../Mesh"
@@ -35,6 +34,9 @@ export default class Scene extends RenderLayer
 
         this.shader = Shader.Create("vBasicShader", "fBasicShader", "SCREEN_QUAD_SHADER");
 
+        // Since we'll be rendering our scene to an off-screen render buffer, and storing the results
+        // in a texture to be used for the "SreenQuad" render layer, we need to define this.renderTarget
+        // as our own framebuffer.
         var imageConfig : ImageConfig = {
             TargetType: TextureType.Tex2D,
             MipMapLevel: 0,

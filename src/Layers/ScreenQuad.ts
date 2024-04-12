@@ -38,6 +38,7 @@ export default class ScreenQuad extends RenderLayer
 
     override Render(): void 
     {
+        // <-- Will be binding a texture here soon.
         Renderer.DrawVAO(this.vertexArray, this.shader);
     }
 
