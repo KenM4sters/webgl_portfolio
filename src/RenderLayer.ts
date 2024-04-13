@@ -12,16 +12,18 @@ export interface RenderConfig
     DepthTest : boolean;
     ClearColorBit : boolean;
     ClearDepthBit : boolean;
+    CacheResults : boolean;
 };
 
 
 
 export default abstract class RenderLayer 
 {
-    constructor() {}
+    constructor(public name : string) {}
 
     abstract Prepare() : void;
     abstract Render() : void;
+    abstract Resize() : void;
 
     // Get/Set the framebuffer that this layer renders to.
     GetRenderTarget() : Framebuffer | null { return this.renderTarget; }
@@ -36,7 +38,8 @@ export default abstract class RenderLayer
     {
         DepthTest : true,
         ClearColorBit: true,
-        ClearDepthBit: true
+        ClearDepthBit: true,
+        CacheResults: false 
     };
 };
 

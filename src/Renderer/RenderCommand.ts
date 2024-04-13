@@ -1,7 +1,7 @@
 import {gl} from "../App.ts";
 import * as glm from "gl-matrix";
 import { VertexBuffer, IndexBuffer, Id } from "./Buffer.ts";
-import { TextureType, ImageConfig, ImageChannels, ConvertTextureTypeToNative, ConvertImageChannelsToNative } from "./Texture.ts";
+import { TextureType, ImageConfig, ImageChannels, ConvertTextureTypeToNative, ConvertImageChannelsToNative, TexData } from "./Texture.ts";
 import { ConvertBitsToNative, FramebufferBits } from "../RenderLayer.ts";
 import { ConvertShaderTypeToNative, GetShaderDataType } from "./Shader.ts";
 
@@ -198,9 +198,16 @@ export class RenderCommand
         gl.activeTexture(gl.TEXTURE0 + texUnit);
         gl.bindTexture(ConvertTextureTypeToNative(type), 0);
     }
-    public static SetTexture2DArray(config : ImageConfig, data : Uint8Array | null) : void 
+    public static SetTexture2DArray(config : ImageConfig, data : TexData<Uint8Array | null>) : void 
     {
-        gl.texImage2D(gl.TEXTURE_2D, config.MipMapLevel, ConvertImageChannelsToNative(config.NChannels), config.Width, config.Height, 0, ConvertImageChannelsToNative(config.Format), GetShaderDataType(config.DataType), data);
+        // if(data instanceof HTMLImageElement) throw new Error("RenderCommand | Calling SetTexture2DArray on an image element!");
+        // Initialize texture parameters
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        // Set data.
+        gl.texImage2D(gl.TEXTURE_2D, config.MipMapLevel, ConvertImageChannelsToNative(config.NChannels), config.Width, config.Height, 0, ConvertImageChannelsToNative(config.Format), GetShaderDataType(config.DataType), data.val);
     }  
     public static SetTexture2DImage(config : ImageConfig, data : HTMLImageElement) : void 
     {
@@ -209,6 +216,10 @@ export class RenderCommand
     public static GenerateMipMap(type : TextureType) : void 
     {
         gl.generateMipmap(type);
+    }
+    public static DeleteTexture2D(Id : Id<WebGLTexture | null>) : void 
+    {
+        gl.deleteTexture(Id.val);
     }
 
     // Framebuffers
@@ -230,7 +241,12 @@ export class RenderCommand
     public static SetFramebufferColorAttachment(targetTexture : Id<WebGLTexture | null>, unit : number = 0) : void
     {
         const attachmentUnit = gl.COLOR_ATTACHMENT0 + unit;
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentUnit, gl.TEXTURE_2D, targetTexture.val, 0);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentUnit, gl.TEXTURE_2D, targetTexture.val, 0); 
+        // Check for any errors.
+        const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+        if (status !== gl.FRAMEBUFFER_COMPLETE) {
+            console.error('Framebuffer is not complete: ' + status.toString(16));
+        }       
     }
 
     // Renderbuffers
@@ -249,6 +265,7 @@ export class RenderCommand
     {
         gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, config.Width, config.Height);
         this.BindFramebuffer(FBO);
+        this.BindRenderbuffer(RBO);
         gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, RBO.val);
         this.UnbindFramebuffer();
     }
@@ -257,12 +274,29 @@ export class RenderCommand
         gl.bindRenderbuffer(gl.RENDERBUFFER, null);
     } 
 
+    public static DeleteFramebuffer(FBO : Id<WebGLFramebuffer | null>) 
+    {
+        if(!FBO) console.warn("RenderCommand | Attempting to delete a null framebuffer!");
+        gl.deleteFramebuffer(FBO.val);        
+    }
+    public static DeleteRenderBuffer(RBO : Id<WebGLRenderbuffer | null>) 
+    {
+        if(!RBO) console.warn("RenderCommand | Attempting to delete a null renderbuffer!");
+        gl.deleteRenderbuffer(RBO.val);        
+    }
+
     public static ReadFramebufferResults(buffer : {value: Uint8Array}) : void 
     {
     }
 
 
     // Rendering
+
+    public static SetViewportDimensions(width : number, height : number) : void 
+    {
+        gl.viewport(0, 0, width, height);
+    }
+
     public static EnableDepthTest(b : boolean) : void
     {
         b ? gl.enable(gl.DEPTH_TEST) : gl.disable(gl.DEPTH_TEST);

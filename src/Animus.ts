@@ -9,26 +9,33 @@ class Animus extends App
     constructor() 
     {
         super();
+        // Event listeners.
+        window.addEventListener("resize", () => this.Resize());
         this.Prepare();
     }
 
-    Prepare() : void 
+    override Prepare() : void 
     {
         this.renderer.PushLayer(this.scene);
         this.renderer.PushLayer(this.screenQuad);
     }
 
-    Run() : void 
+    override Run() : void 
     {
         this.renderer.Run();
         window.requestAnimationFrame(() => this.Run())        
         
     }
 
+    override Resize(): void {
+        this.ResizeCanvas();
+        this.renderer.Resize();
+    }
+
 
     private camera     : PerspectiveCamera  = new PerspectiveCamera();
-    private scene      : Scene              = new Scene(this.camera);
-    private screenQuad : ScreenQuad         = new ScreenQuad();
+    private scene      : Scene              = new Scene("Scene", this.camera);
+    private screenQuad : ScreenQuad         = new ScreenQuad("ScreenQuad");
     
 };
 

@@ -1,7 +1,13 @@
 import { gl } from "../App.ts";
 import { Id } from "./Buffer.ts";
 import { RenderCommand } from "./RenderCommand";
-import { ShaderDataType } from "./Shader.ts";
+import { ConvertShaderTypeToNative, ShaderDataType } from "./Shader.ts";
+
+export class TexData<T> 
+{
+    constructor(public val : T) {}
+
+}
 
 export enum TextureType 
 {
@@ -14,6 +20,7 @@ export enum ImageChannels
     RGB,
     RGBA 
 }
+
 
 export interface ImageConfig {
     TargetType : TextureType;
@@ -30,15 +37,16 @@ export interface ImageConfig {
 // classes.
 abstract class Texture 
 {
-    constructor(config : ImageConfig) 
+    constructor(config : ImageConfig, data : Uint8Array | null = null) 
     {
         this.config = config;
+        this.data.val = data
         this.Init();
     }
 
     protected Id : Id<WebGLTexture | null> = {val: null};
     protected config : ImageConfig;
-    protected data : Uint8Array | HTMLImageElement | null = new Uint8Array([255, 0, 255, 255]);
+    protected data : TexData<Uint8Array | HTMLImageElement | null> = {val: null};
 
     abstract Init() : void;
     abstract LoadImage(filepath : string) : void;
@@ -46,11 +54,11 @@ abstract class Texture
     // Getters
     GetId() : Id<WebGLTexture | null> { return this.Id; }
     GetConfig() : ImageConfig { return this.config; }
-    GetData() : Uint8Array | HTMLImageElement | null { return this.data; }
+    GetData() : TexData<Uint8Array | HTMLImageElement | null> { return this.data; }
 
     // Setters
     SetConfig(config : ImageConfig) : void { this.config = config;  }
-    SetData(data : Uint8Array | HTMLImageElement) : void { this.data = data }
+    SetData(texData : TexData<Uint8Array | HTMLImageElement | null>) : void { this.data = texData}
     
 };
 
@@ -60,16 +68,14 @@ export class Texture2D extends Texture
 {
     constructor(config : ImageConfig, data : Uint8Array | null = null) 
     {
-        super(config);
-        if(data)
-            this.data = data
+        super(config, data);
     }
 
     override Init() : void 
     {
         this.Id = {val: RenderCommand.CreateTexture()};
         RenderCommand.BindTexture(this.Id, TextureType.Tex2D, 0);
-        RenderCommand.SetTexture2DArray(this.config, null);
+        RenderCommand.SetTexture2DArray(this.config, this.data as TexData<Uint8Array | null>);
     }
 
     // Loads an Image object from a given filepath and sets the member data variable to the image object.
@@ -83,7 +89,7 @@ export class Texture2D extends Texture
             RenderCommand.GenerateMipMap(TextureType.Tex2D);
             RenderCommand.UnBindTexture(TextureType.Tex2D, 0);
 
-            this.data = image;
+            this.data.val = image;
             this.config.Width = image.width;
             this.config.Height = image.height;
         })

@@ -4,16 +4,17 @@ import { Mesh } from "../Mesh"
 import RenderLayer from "../RenderLayer";
 import { BufferAttribLayout, BufferAttribute, IndexBuffer, VertexBuffer } from "../Renderer/Buffer";
 import Framebuffer from "../Renderer/Framebuffer";
+import { RenderCommand } from "../Renderer/RenderCommand";
 import Renderer from "../Renderer/Renderer";
 import { Shader, ShaderDataType } from "../Renderer/Shader";
 import { ImageChannels, ImageConfig, TextureType } from "../Renderer/Texture";
 import VertexArray from "../Renderer/VertexArray";
-import { SQUARE_INDICES, SQUARE_VERTCES_COMPLETE } from "../Utils";
+import {SMALL_SQUARE_VERTCES_COMPLETE, SQUARE_INDICES } from "../Utils";
 
 export default class Scene extends RenderLayer
 {
-    constructor(camera : PerspectiveCamera) {
-        super();
+    constructor(name : string, camera : PerspectiveCamera) {
+        super(name);
         this.camera = camera;
     }
 
@@ -26,7 +27,7 @@ export default class Scene extends RenderLayer
         );
 
         var layout : BufferAttribLayout = new BufferAttribLayout(elements);
-        var VBO = new VertexBuffer(SQUARE_VERTCES_COMPLETE);
+        var VBO = new VertexBuffer(SMALL_SQUARE_VERTCES_COMPLETE);
         VBO.SetLayout(layout);
 
         var EBO = new IndexBuffer(SQUARE_INDICES);
@@ -48,11 +49,37 @@ export default class Scene extends RenderLayer
         }
 
         this.renderTarget = new Framebuffer(imageConfig);
+
+        this.renderConfig.CacheResults = true; // When set to true, this stores the results in the renderer for free access by all layers.
+        
     }
 
     override Render(): void 
     {
         Renderer.DrawVAO(this.vertexArray, this.shader);
+    }
+
+    override Resize(): void {
+
+        // Delete current framebuffers, renderbuffers and textures, since they all require
+        // information about our window dimensions which have now been changed. 
+        if(this.renderTarget?.FBO) RenderCommand.DeleteFramebuffer(this.renderTarget.FBO);
+        if(this.renderTarget?.RBO) RenderCommand.DeleteRenderBuffer(this.renderTarget.RBO);
+        if(this.renderTarget?.colorTexture) RenderCommand.DeleteTexture2D(this.renderTarget.colorTexture.GetId());
+
+        // Instantiate a new ImageConfig object with the updated dimension parameters.
+        var imageConfig : ImageConfig = {
+            TargetType: TextureType.Tex2D,
+            MipMapLevel: 0,
+            NChannels: ImageChannels.RGBA,
+            Width: window.innerWidth,
+            Height: window.innerHeight,
+            Format: ImageChannels.RGBA,
+            DataType: ShaderDataType.UCHAR
+        }
+
+        // Reset the renderTarget.
+        this.renderTarget = new Framebuffer(imageConfig);
     }
 
     Push(obj : Mesh | Light) : void 

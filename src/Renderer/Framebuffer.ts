@@ -8,6 +8,7 @@ export default class Framebuffer
     constructor(targetTexConfig : ImageConfig) {
         this.colorTexture = Texture2D.Create(targetTexConfig);
         this.Resize();
+        
     }
 
     FBO : Id<WebGLFramebuffer | null> = {val: null};

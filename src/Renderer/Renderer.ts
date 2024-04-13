@@ -4,25 +4,15 @@ import VertexArray from "./VertexArray";
 import RenderLayer from "../RenderLayer";
 import { IndexBuffer } from "./Buffer";
 import { Texture2D } from "./Texture";
-
-export class RenderResult 
-{
-    constructor(result : Texture2D | null) 
-    {
-        this.result = result;
-    }
-
-    GetResult() : Texture2D | null {return this.result;}
-    SetResult(result : Texture2D | null) : void { this.result = result; }
-
-    private result !: Texture2D | null;
-};
-
-
+import { gl } from "../App";
 
 export default class Renderer 
 {
-    constructor() {}
+    constructor() {
+        this.pixels = new Uint8Array(window.innerWidth * window.innerHeight * 4);
+    }
+
+    pixels : Uint8Array;
 
 
     public PushLayer(layer : RenderLayer) : void
@@ -42,11 +32,12 @@ export default class Renderer
     private RenderLayer(layer : RenderLayer) : void
     {   
         // Get Props.
-        let framebuffer = layer.GetRenderTarget()?.FBO
+        let framebuffer = layer.GetRenderTarget()
         let config = layer.GetRenderConfig();
 
         // Set Framebuffer.
-        if(framebuffer) RenderCommand.BindFramebuffer(framebuffer); else RenderCommand.UnbindFramebuffer();
+        if(framebuffer?.FBO) RenderCommand.BindFramebuffer(framebuffer.FBO); else RenderCommand.UnbindFramebuffer();
+        if(framebuffer?.FBO) RenderCommand.BindRenderbuffer(framebuffer.RBO); else RenderCommand.UnbindRenderbuffer();
         
         // Set Render configurations.
         RenderCommand.EnableDepthTest(config.DepthTest);
@@ -57,14 +48,29 @@ export default class Renderer
         // Render the layer.
         layer.Render();
 
-        // Cleanup.
-        if(framebuffer) RenderCommand.UnbindFramebuffer();
+        // gl.readPixels(0, 0, window.innerWidth, innerHeight, gl.RGBA, gl.UNSIGNED_BYTE, this.pixels);
+        // console.log(this.pixels);
+        
+        
+        if(framebuffer?.FBO && config.CacheResults) this.results[layer.name] = framebuffer?.GetColorTexture();
+        if(framebuffer?.FBO)console.log(framebuffer?.GetColorTexture());
 
+        // Cleanup.
+        if(framebuffer?.FBO) RenderCommand.UnbindFramebuffer();
+        if(framebuffer?.RBO) RenderCommand.UnbindRenderbuffer();
+    }
+
+    Resize() : void 
+    {
+        for(const layer of this.layers) 
+        {
+            layer.Resize();
+        }
     }
 
     // Getters & Setters
     GetRenderLayers() : Array<RenderLayer> { return this.layers; }
-    GetRenderResult(key : string) : RenderResult | null 
+    GetRenderResult(key : string) : Texture2D | null 
     {
         if(this.results[key]) return this.results[key];
         else throw new Error(`Renderer | Failed to find render result with key : ${key}`);
@@ -111,5 +117,5 @@ export default class Renderer
     private layers : Array<RenderLayer> = new Array<RenderLayer>();
 
     // Currently not being used, but I think it could come in handy down the road.
-    private results : {[key : string]: RenderResult} = {};
+    private results : {[key : string]: Texture2D} = {};
 };
