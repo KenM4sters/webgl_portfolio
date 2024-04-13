@@ -1,19 +1,19 @@
 import { Id } from "./Buffer";
 import { RenderCommand } from "./RenderCommand";
-import { Texture2D, ImageConfig } from "./Texture";
+import { Texture2D, ImageConfig, TextureType } from "./Texture";
 
 
 export default class Framebuffer 
 {
     constructor(targetTexConfig : ImageConfig) {
-        this.colorTexture = Texture2D.Create(targetTexConfig);
+        this.colorTexture = Texture2D.Create(targetTexConfig, "scene_tex");
         this.Resize();
         
     }
 
-    FBO : Id<WebGLFramebuffer | null> = {val: null};
-    RBO : Id<WebGLRenderbuffer | null> = {val: null};
-    colorTexture : Texture2D;
+    public FBO : Id<WebGLFramebuffer | null> = {val: null};
+    public RBO : Id<WebGLRenderbuffer | null> = {val: null};
+    private colorTexture : Texture2D;
 
     // Getters
     GetFBO() : WebGLFramebuffer { return this.FBO; }

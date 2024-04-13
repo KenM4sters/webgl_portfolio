@@ -3,7 +3,7 @@ import { Shader } from "./Shader";
 import VertexArray from "./VertexArray";
 import RenderLayer from "../RenderLayer";
 import { IndexBuffer } from "./Buffer";
-import { Texture2D } from "./Texture";
+import { Texture2D, TextureType } from "./Texture";
 import { gl } from "../App";
 
 export default class Renderer 
@@ -18,12 +18,12 @@ export default class Renderer
     public PushLayer(layer : RenderLayer) : void
     {
         layer.Prepare();
-        this.layers.push(layer);
+        Renderer.layers.push(layer);
     }
 
     public Run() : void
     {
-        for(const layer of this.layers) 
+        for(const layer of Renderer.layers) 
         {
             this.RenderLayer(layer);
         }
@@ -36,9 +36,18 @@ export default class Renderer
         let config = layer.GetRenderConfig();
 
         // Set Framebuffer.
-        if(framebuffer?.FBO) RenderCommand.BindFramebuffer(framebuffer.FBO); else RenderCommand.UnbindFramebuffer();
-        if(framebuffer?.FBO) RenderCommand.BindRenderbuffer(framebuffer.RBO); else RenderCommand.UnbindRenderbuffer();
-        
+        if(framebuffer?.FBO) 
+        {
+            RenderCommand.BindFramebuffer(framebuffer.FBO);
+            RenderCommand.BindRenderbuffer(framebuffer.RBO);              
+            RenderCommand.BindTexture(framebuffer.GetColorTexture().GetId(), TextureType.Tex2D);
+        } else {
+            RenderCommand.UnbindFramebuffer();
+            RenderCommand.UnbindRenderbuffer();
+            RenderCommand.UnBindTexture(TextureType.Tex2D);
+        }
+
+
         // Set Render configurations.
         RenderCommand.EnableDepthTest(config.DepthTest);
         RenderCommand.ClearColorBufferBit(config.ClearColorBit);
@@ -47,30 +56,30 @@ export default class Renderer
 
         // Render the layer.
         layer.Render();
-
+        
         // gl.readPixels(0, 0, window.innerWidth, innerHeight, gl.RGBA, gl.UNSIGNED_BYTE, this.pixels);
-        // console.log(this.pixels);
+        // console.log(this.pixels);        
         
-        
-        if(framebuffer?.FBO && config.CacheResults) this.results[layer.name] = framebuffer?.GetColorTexture();
-        if(framebuffer?.FBO)console.log(framebuffer?.GetColorTexture());
+        if(framebuffer?.FBO && config.CacheResults) Renderer.results[layer.name] = framebuffer?.GetColorTexture();
+        // if(framebuffer?.FBO) console.log(framebuffer.GetColorTexture());
 
         // Cleanup.
         if(framebuffer?.FBO) RenderCommand.UnbindFramebuffer();
         if(framebuffer?.RBO) RenderCommand.UnbindRenderbuffer();
+        if(framebuffer?.GetColorTexture()) RenderCommand.UnBindTexture(TextureType.Tex2D);
     }
 
     Resize() : void 
     {
-        for(const layer of this.layers) 
+        for(const layer of Renderer.layers) 
         {
             layer.Resize();
         }
     }
 
     // Getters & Setters
-    GetRenderLayers() : Array<RenderLayer> { return this.layers; }
-    GetRenderResult(key : string) : Texture2D | null 
+    public static GetRenderLayers() : Array<RenderLayer> { return Renderer.layers; }
+    public static GetRenderResult(key : string) : Texture2D | null 
     {
         if(this.results[key]) return this.results[key];
         else throw new Error(`Renderer | Failed to find render result with key : ${key}`);
@@ -106,16 +115,10 @@ export default class Renderer
     }
 
 
-
-
-
-
-
-
     // Holds all the layers that the renderer will run through.
     // Remembder - Order here matters: the renderer will iterate through this from [0] to [length-1].
-    private layers : Array<RenderLayer> = new Array<RenderLayer>();
+    private static layers : Array<RenderLayer> = new Array<RenderLayer>();
 
     // Currently not being used, but I think it could come in handy down the road.
-    private results : {[key : string]: Texture2D} = {};
+    private static results : {[key : string]: Texture2D} = {};
 };

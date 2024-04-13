@@ -1,3 +1,4 @@
+import { SCREEN_HEIGHT, SCREEN_WIDTH, gl } from "../App";
 import PerspectiveCamera from "../Camera/PerspectiveCamera";
 import { Light } from "../Light"
 import { Mesh } from "../Mesh"
@@ -39,13 +40,13 @@ export default class Scene extends RenderLayer
         // in a texture to be used for the "SreenQuad" render layer, we need to define this.renderTarget
         // as our own framebuffer.
         var imageConfig : ImageConfig = {
-            TargetType: TextureType.Tex2D,
+            TargetType: gl.TEXTURE_2D,
             MipMapLevel: 0,
-            NChannels: ImageChannels.RGBA,
-            Width: window.innerWidth,
-            Height: window.innerHeight,
-            Format: ImageChannels.RGBA,
-            DataType: ShaderDataType.UCHAR
+            NChannels: gl.RGBA,
+            Width: SCREEN_WIDTH,
+            Height: SCREEN_HEIGHT,
+            Format: gl.RGBA,
+            DataType: gl.UNSIGNED_BYTE
         }
 
         this.renderTarget = new Framebuffer(imageConfig);
@@ -65,17 +66,17 @@ export default class Scene extends RenderLayer
         // information about our window dimensions which have now been changed. 
         if(this.renderTarget?.FBO) RenderCommand.DeleteFramebuffer(this.renderTarget.FBO);
         if(this.renderTarget?.RBO) RenderCommand.DeleteRenderBuffer(this.renderTarget.RBO);
-        if(this.renderTarget?.colorTexture) RenderCommand.DeleteTexture2D(this.renderTarget.colorTexture.GetId());
+        if(this.renderTarget?.GetColorTexture()) RenderCommand.DeleteTexture2D(this.renderTarget.GetColorTexture().GetId());
 
         // Instantiate a new ImageConfig object with the updated dimension parameters.
         var imageConfig : ImageConfig = {
-            TargetType: TextureType.Tex2D,
+            TargetType: gl.TEXTURE_2D,
             MipMapLevel: 0,
-            NChannels: ImageChannels.RGBA,
-            Width: window.innerWidth,
-            Height: window.innerHeight,
-            Format: ImageChannels.RGBA,
-            DataType: ShaderDataType.UCHAR
+            NChannels: gl.RGBA,
+            Width: SCREEN_WIDTH,
+            Height: SCREEN_HEIGHT,
+            Format: gl.RGBA,
+            DataType: gl.UNSIGNED_BYTE
         }
 
         // Reset the renderTarget.

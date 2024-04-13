@@ -7,12 +7,14 @@ if (canvas == null) throw new Error("#glcanvas cannot be found!");
 export var gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
 if (gl == null) throw new Error("webgl context is not available!");
 
+export var SCREEN_WIDTH : number = window.innerWidth * Math.max(window.devicePixelRatio, 2);
+export var SCREEN_HEIGHT : number = window.innerHeight * Math.max(window.devicePixelRatio, 2);
+
 
 export default abstract class App {
     constructor() 
     {
         this.Resize();
-        if(this.canvas) RenderCommand.SetViewportDimensions(this.canvas.width, this.canvas.height);
     } 
     
     abstract Prepare() : void;
@@ -23,18 +25,20 @@ export default abstract class App {
     {
         if(!this.canvas) return; // If the canvas is null, then don't bother resizing it.
 
-        const displayWidth  = this.canvas.clientWidth;
-        const displayHeight = this.canvas.clientHeight;
+        var canvasWidth = this.canvas.width;
+        var canvasHeight = this.canvas.height;
 
-        // Check if the canvas size matches the display size
-        if (this.canvas.width !== displayWidth || this.canvas.height !== displayHeight) {
-            // Set the canvas size to match the display size
-            this.canvas.width  = displayWidth;
-            this.canvas.height = displayHeight;
-
-            // Update the WebGL viewport to match the new this.canvas size
-            RenderCommand.SetViewportDimensions(this.canvas.width, this.canvas.height);
+        if(canvasWidth != window.innerWidth || canvasHeight != window.innerHeight) 
+        {
+            canvasWidth = window.innerWidth;
+            canvasHeight = window.innerHeight;
         }
+
+        SCREEN_WIDTH = canvasWidth * Math.max(window.devicePixelRatio, 2);
+        SCREEN_HEIGHT = canvasHeight * Math.max(window.devicePixelRatio, 2);
+
+        RenderCommand.SetViewportDimensions(SCREEN_WIDTH, SCREEN_HEIGHT);
+
     }
 
     protected renderer : Renderer = new Renderer();

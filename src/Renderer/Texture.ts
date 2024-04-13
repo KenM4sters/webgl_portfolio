@@ -1,4 +1,4 @@
-import { gl } from "../App.ts";
+import { SCREEN_HEIGHT, SCREEN_WIDTH, gl } from "../App.ts";
 import { Id } from "./Buffer.ts";
 import { RenderCommand } from "./RenderCommand";
 import { ConvertShaderTypeToNative, ShaderDataType } from "./Shader.ts";
@@ -23,13 +23,13 @@ export enum ImageChannels
 
 
 export interface ImageConfig {
-    TargetType : TextureType;
+    TargetType : number;
     MipMapLevel : number;
-    NChannels : ImageChannels;
+    NChannels : number;
     Width : number;
     Height : number;
-    Format : ImageChannels;
-    DataType : ShaderDataType;
+    Format : number;
+    DataType : number;
 };
 
 
@@ -37,16 +37,19 @@ export interface ImageConfig {
 // classes.
 abstract class Texture 
 {
-    constructor(config : ImageConfig, data : Uint8Array | null = null) 
+    constructor(config : ImageConfig, name : string, data : Uint8Array | null = null) 
     {
         this.config = config;
-        this.data.val = data
+        // this.data.val = data
+        this.name = name;
+
         this.Init();
     }
 
     protected Id : Id<WebGLTexture | null> = {val: null};
     protected config : ImageConfig;
     protected data : TexData<Uint8Array | HTMLImageElement | null> = {val: null};
+    public name : string = "DEFAULT";
 
     abstract Init() : void;
     abstract LoadImage(filepath : string) : void;
@@ -66,9 +69,9 @@ abstract class Texture
 // that can be loaded via the LoadImage() method.
 export class Texture2D extends Texture 
 {
-    constructor(config : ImageConfig, data : Uint8Array | null = null) 
+    constructor(config : ImageConfig, name : string, data : Uint8Array | null = null) 
     {
-        super(config, data);
+        super(config, name, data);
     }
 
     override Init() : void 
@@ -98,9 +101,9 @@ export class Texture2D extends Texture
     // This function is meant to be called whenever you want to instantiate a new instance of the 
     // class, but it's just a personal preference/habbit for me from C++, so of course you can just
     // manually create an instance with the new keyword and not bother calling Create().
-    static Create(config : ImageConfig, data : Uint8Array | null = null) : Texture2D 
+    static Create(config : ImageConfig, name : string, data : Uint8Array | null = null) : Texture2D 
     {
-        return new Texture2D(config, data);
+        return new Texture2D(config, name, data);
     }
 };
 
@@ -109,9 +112,9 @@ export class Texture2D extends Texture
 // Not needed yet - Work In Progress.
 export class CubeTexture extends Texture 
 {
-    constructor(config : ImageConfig) 
+    constructor(config : ImageConfig, name : string) 
     {
-        super(config);
+        super(config, name);
     }
 
     override Init() : void {}

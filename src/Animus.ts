@@ -3,8 +3,7 @@ import Scene from "./Layers/Scene.ts";
 import PerspectiveCamera from "./Camera/PerspectiveCamera.ts"
 import ScreenQuad from "./Layers/ScreenQuad.ts";
 
-
-class Animus extends App
+export class Animus extends App
 {
     constructor() 
     {
@@ -35,8 +34,7 @@ class Animus extends App
 
     private camera     : PerspectiveCamera  = new PerspectiveCamera();
     private scene      : Scene              = new Scene("Scene", this.camera);
-    private screenQuad : ScreenQuad         = new ScreenQuad("ScreenQuad");
-    
+    private screenQuad : ScreenQuad         = new ScreenQuad("ScreenQuad");    
 };
 
 

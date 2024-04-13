@@ -141,7 +141,7 @@ export class RenderCommand
 
     public static ReleaseShader() : void 
     { 
-        gl.useProgram(0); 
+        gl.useProgram(null); 
     }
 
     public static SetInt(Id : Id<WebGLProgram | null>, name : string, val : number) : void 
@@ -183,7 +183,7 @@ export class RenderCommand
     // Textures
     public static CreateTexture() : WebGLTexture 
     {
-        const temp : WebGLTexture | null = gl.createTexture();
+        const temp : WebGLTexture | null = gl.createTexture();        
         if(temp) 
             return temp;
         throw new Error("RenderCommand | Failed to create texture!");
@@ -196,7 +196,7 @@ export class RenderCommand
     public static UnBindTexture(type : TextureType, texUnit : number = 0) : void 
     {
         gl.activeTexture(gl.TEXTURE0 + texUnit);
-        gl.bindTexture(ConvertTextureTypeToNative(type), 0);
+        gl.bindTexture(ConvertTextureTypeToNative(type), null);
     }
     public static SetTexture2DArray(config : ImageConfig, data : TexData<Uint8Array | null>) : void 
     {
@@ -207,11 +207,11 @@ export class RenderCommand
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         // Set data.
-        gl.texImage2D(gl.TEXTURE_2D, config.MipMapLevel, ConvertImageChannelsToNative(config.NChannels), config.Width, config.Height, 0, ConvertImageChannelsToNative(config.Format), GetShaderDataType(config.DataType), data.val);
+        gl.texImage2D(config.TargetType, config.MipMapLevel, config.NChannels, config.Width, config.Height, 0, config.Format, config.DataType, data.val);          
     }  
     public static SetTexture2DImage(config : ImageConfig, data : HTMLImageElement) : void 
     {
-        gl.texImage2D(gl.TEXTURE_2D, config.MipMapLevel, ConvertImageChannelsToNative(config.NChannels), ConvertImageChannelsToNative(config.Format), GetShaderDataType(config.DataType), data);
+        gl.texImage2D(config.TargetType, config.MipMapLevel, config.NChannels, config.Format, config.DataType, data);
     }
     public static GenerateMipMap(type : TextureType) : void 
     {
@@ -242,11 +242,17 @@ export class RenderCommand
     {
         const attachmentUnit = gl.COLOR_ATTACHMENT0 + unit;
         gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentUnit, gl.TEXTURE_2D, targetTexture.val, 0); 
+        
         // Check for any errors.
         const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
         if (status !== gl.FRAMEBUFFER_COMPLETE) {
             console.error('Framebuffer is not complete: ' + status.toString(16));
         }       
+    }
+    public static DeleteFramebuffer(FBO : Id<WebGLFramebuffer | null>) 
+    {
+        if(!FBO) console.warn("RenderCommand | Attempting to delete a null framebuffer!");
+        gl.deleteFramebuffer(FBO.val);        
     }
 
     // Renderbuffers
@@ -274,11 +280,6 @@ export class RenderCommand
         gl.bindRenderbuffer(gl.RENDERBUFFER, null);
     } 
 
-    public static DeleteFramebuffer(FBO : Id<WebGLFramebuffer | null>) 
-    {
-        if(!FBO) console.warn("RenderCommand | Attempting to delete a null framebuffer!");
-        gl.deleteFramebuffer(FBO.val);        
-    }
     public static DeleteRenderBuffer(RBO : Id<WebGLRenderbuffer | null>) 
     {
         if(!RBO) console.warn("RenderCommand | Attempting to delete a null renderbuffer!");

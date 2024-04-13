@@ -36,7 +36,18 @@ export default class ScreenQuad extends RenderLayer
     override Render(): void 
     {
         // <-- Will be binding a texture here soon.
+        RenderCommand.UseShader(this.shader.GetId());
+        var tex =  Renderer.GetRenderResult("Scene");
+        if(tex) RenderCommand.BindTexture(tex.GetId(), TextureType.Tex2D);
+        
+        RenderCommand.SetInt(this.shader.GetId(), "tex", 0); 
+        
+        RenderCommand.SetVec3f(this.shader.GetId(), "Color", [1.0, 0.2, 1.0]);
+
         Renderer.DrawVAO(this.vertexArray, this.shader);
+
+        RenderCommand.ReleaseShader();
+        RenderCommand.UnBindTexture(TextureType.Tex2D);
     }
 
     override Resize(): void {
