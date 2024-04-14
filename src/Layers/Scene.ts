@@ -3,18 +3,15 @@ import PerspectiveCamera from "../Camera/PerspectiveCamera";
 import { Light } from "../Light"
 import { Mesh } from "../Mesh"
 import RenderLayer from "../RenderLayer";
-import { BufferAttribLayout, BufferAttribute, IndexBuffer, VertexBuffer } from "../Renderer/Buffer";
 import Framebuffer from "../Renderer/Framebuffer";
 import { RenderCommand } from "../Renderer/RenderCommand";
 import Renderer from "../Renderer/Renderer";
-import { Shader, ShaderDataType } from "../Renderer/Shader";
 import { ImageChannels, ImageConfig, TextureType } from "../Renderer/Texture";
 import VertexArray from "../Renderer/VertexArray";
-import {SMALL_SQUARE_VERTCES_COMPLETE, SQUARE_INDICES } from "../Utils";
+import AssetManager from "./AssetManager";
 
 // Shaders
-import basicVertSource from "../Shaders/BASIC_SHADER.vert?raw";
-import basicFragSource from "../Shaders/BASIC_SHADER.frag?raw";
+
 
 export default class Scene extends RenderLayer
 {
@@ -25,20 +22,10 @@ export default class Scene extends RenderLayer
 
     override Prepare(): void 
     {
-        var elements : BufferAttribute[] = new Array<BufferAttribute>(
-            new BufferAttribute(ShaderDataType.Float3, "aPosition"),
-            new BufferAttribute(ShaderDataType.Float3, "aNormal"),
-            new BufferAttribute(ShaderDataType.Float2, "aUV")
-        );
+        var square_geo = AssetManager.geometries["SQUARE"];
+        var square_mesh = new Mesh(square_geo, 0);
+        this.sceneObjects.push(square_mesh);
 
-        var layout : BufferAttribLayout = new BufferAttribLayout(elements);
-        var VBO = new VertexBuffer(SMALL_SQUARE_VERTCES_COMPLETE);
-        VBO.SetLayout(layout);
-
-        var EBO = new IndexBuffer(SQUARE_INDICES);
-        this.vertexArray = new VertexArray(VBO, EBO);
-
-        this.shader = Shader.Create(basicVertSource, basicFragSource, "SCREEN_QUAD_SHADER");
 
         // Since we'll be rendering our scene to an off-screen render buffer, and storing the results
         // in a texture to be used for the "SreenQuad" render layer, we need to define this.renderTarget
@@ -59,9 +46,24 @@ export default class Scene extends RenderLayer
         
     }
 
-    override Render(): void 
+    override Render(camera : PerspectiveCamera): void 
     {
-        Renderer.DrawVAO(this.vertexArray, this.shader);
+        this.Traverse((child : Mesh | Light) => 
+        {
+            if(child instanceof Mesh) 
+            {
+                let mat = AssetManager.materials[child.materialIndex];
+                let shader = mat.GetShader();
+
+                RenderCommand.UseShader(shader.GetId());
+                RenderCommand.SetMat4f(shader.GetId(), "model", child.transforms.ModelMatrix);
+                RenderCommand.SetMat4f(shader.GetId(), "view", camera.GetViewMatrix());
+                RenderCommand.SetMat4f(shader.GetId(), "projection", camera.GetProjectionMatrix());
+                RenderCommand.SetVec3f(shader.GetId(), "camera.Position", camera.position);
+                
+                Renderer.DrawMesh(child);
+            } 
+        })
     }
 
     override Resize(): void {
@@ -92,7 +94,7 @@ export default class Scene extends RenderLayer
         this.sceneObjects.push(obj);
     }
 
-    Traverse(callback: (child : Mesh | Light) => {}) 
+    Traverse(callback: (child : Mesh | Light) => void) 
     {
         for(const obj of this.sceneObjects) 
         {
@@ -102,8 +104,4 @@ export default class Scene extends RenderLayer
 
     public sceneObjects : Array<Mesh | Light> = new Array<Mesh | Light>();
     public camera : PerspectiveCamera;
-
-    private shader !: Shader;
-    private vertexArray !: VertexArray;
-
 };

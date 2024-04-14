@@ -1,16 +1,15 @@
+import { Geometry } from "../Geometry";
+import { Material } from "../Material";
+import { Mesh } from "../Mesh";
 import RenderLayer from "../RenderLayer";
-import { BufferAttribLayout, BufferAttribute, IndexBuffer, VertexBuffer } from "../Renderer/Buffer";
-import Framebuffer from "../Renderer/Framebuffer";
 import { RenderCommand } from "../Renderer/RenderCommand";
 import Renderer from "../Renderer/Renderer";
 import { Shader, ShaderDataType } from "../Renderer/Shader";
 import { ImageChannels, ImageConfig, TextureType } from "../Renderer/Texture";
 import VertexArray from "../Renderer/VertexArray";
-import { LARGE_SQUARE_VERTCES_COMPLETE, SQUARE_INDICES } from "../Utils";
+import AssetManager from "./AssetManager";
 
-// Shaders
-import screenQuadVertSource from "../Shaders/SCREEN_QUAD_SHADER.vert?raw";
-import screenQuadFragSource from "../Shaders/SCREEN_QUAD_SHADER.frag?raw";
+
 
 export default class ScreenQuad extends RenderLayer 
 {
@@ -21,33 +20,23 @@ export default class ScreenQuad extends RenderLayer
 
     override Prepare(): void 
     {
-        var elements : BufferAttribute[] = new Array<BufferAttribute>(
-            new BufferAttribute(ShaderDataType.Float3, "aPosition"),
-            new BufferAttribute(ShaderDataType.Float3, "aNormal"),
-            new BufferAttribute(ShaderDataType.Float2, "aUV")
-        );
-
-        var layout : BufferAttribLayout = new BufferAttribLayout(elements);
-        var VBO = new VertexBuffer(LARGE_SQUARE_VERTCES_COMPLETE);
-        VBO.SetLayout(layout);        
-
-        var EBO = new IndexBuffer(SQUARE_INDICES);
-        this.vertexArray = new VertexArray(VBO, EBO);
-
-        this.shader = Shader.Create(screenQuadVertSource, screenQuadFragSource, "SCREEN_QUAD_SHADER");
+        var screen_geo : Geometry = AssetManager.geometries["SQUARE"];
+        this.mesh = new Mesh(screen_geo, 1);
     }
 
     override Render(): void 
     {
+        var mat = AssetManager.materials[this.mesh.materialIndex];
+
         // <-- Will be binding a texture here soon.
-        RenderCommand.UseShader(this.shader.GetId());
+        RenderCommand.UseShader(mat.GetShader().GetId());
         var tex = Renderer.GetRenderResult("Scene");
         if(tex) RenderCommand.BindTexture(tex.GetId(), TextureType.Tex2D);        
 
-        RenderCommand.SetInt(this.shader.GetId(), "tex", 0); 
-        RenderCommand.SetVec3f(this.shader.GetId(), "Color", [1.0, 0.2, 1.0]);
+        RenderCommand.SetInt(mat.GetShader().GetId(), "tex", 0); 
+        RenderCommand.SetVec3f(mat.GetShader().GetId(), "Color", [1.0, 0.2, 1.0]);
 
-        Renderer.DrawVAO(this.vertexArray, this.shader);
+        Renderer.DrawMesh(this.mesh);
 
         RenderCommand.ReleaseShader();
         RenderCommand.UnBindTexture(TextureType.Tex2D);
@@ -57,6 +46,5 @@ export default class ScreenQuad extends RenderLayer
         
     }
 
-    private vertexArray !: VertexArray;
-    private shader !: Shader;
+    private mesh !: Mesh;
 }

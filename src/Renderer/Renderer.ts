@@ -5,6 +5,9 @@ import RenderLayer from "../RenderLayer";
 import { IndexBuffer } from "./Buffer";
 import { Texture2D, TextureType } from "./Texture";
 import { gl } from "../App";
+import { Mesh } from "../Mesh";
+import AssetManager from "../Layers/AssetManager";
+import PerspectiveCamera from "../Camera/PerspectiveCamera";
 
 export default class Renderer 
 {
@@ -21,15 +24,15 @@ export default class Renderer
         Renderer.layers.push(layer);
     }
 
-    public Run() : void
+    public Run(camera: PerspectiveCamera) : void
     {
         for(const layer of Renderer.layers) 
         {
-            this.RenderLayer(layer);
+            this.RenderLayer(layer, camera);
         }
     }
 
-    private RenderLayer(layer : RenderLayer) : void
+    private RenderLayer(layer : RenderLayer, camera : PerspectiveCamera) : void
     {   
         // Get Props.
         let framebuffer = layer.GetRenderTarget()
@@ -47,19 +50,16 @@ export default class Renderer
             RenderCommand.UnBindTexture(TextureType.Tex2D);
         }
 
-
         // Set Render configurations.
         RenderCommand.EnableDepthTest(config.DepthTest);
         RenderCommand.ClearColorBufferBit(config.ClearColorBit);
         RenderCommand.ClearDepthBufferBit(config.ClearDepthBit);
         RenderCommand.SetClearColor([0.4, 0.1, 0.1, 1.0]);
 
+
         // Render the layer.
-        layer.Render();
-        
-        // gl.readPixels(0, 0, window.innerWidth, innerHeight, gl.RGBA, gl.UNSIGNED_BYTE, this.pixels);
-        // console.log(this.pixels);        
-        
+        layer.Render(camera);
+                
         if(framebuffer?.FBO && config.CacheResults) Renderer.results[layer.name] = framebuffer?.GetColorTexture();
         // if(framebuffer?.FBO) console.log(framebuffer.GetColorTexture());
 
@@ -89,6 +89,8 @@ export default class Renderer
 
 
 
+
+
     //============================================================
     // Helper functions that take the load off the RenderCommand.
     //============================================================
@@ -112,8 +114,35 @@ export default class Renderer
         // Cleanup.
         RenderCommand.UnbindVertexArray();
         RenderCommand.UnbindBuffer(BufferType.Index);
+        RenderCommand.ReleaseShader();
+
     }
 
+    public static DrawMesh(mesh : Mesh) : void {
+
+        var shader = AssetManager.materials[mesh.materialIndex].GetShader();
+        var VAO = mesh.geometry.vertexArray;
+
+        // Bind the vertex array object and shader program.
+        RenderCommand.BindVertexArray(VAO.GetId());
+        RenderCommand.UseShader(shader.GetId());
+
+        // Only call DrawIndexed() if the index buffer isn't null.
+        var EBO = VAO.GetIndexBuffer();
+        if(EBO && IndexBuffer.Id) 
+        {
+            // RenderCommand.BindBuffer(IndexBuffer.Id, BufferType.Index)
+            RenderCommand.DrawIndexed(EBO.GetUniqueSize() / EBO.GetUniqueIndices().BYTES_PER_ELEMENT , EBO.GetUniqueOffset());
+        } else {
+            RenderCommand.Draw(6);
+        }
+
+        // Cleanup.
+        RenderCommand.UnbindVertexArray();
+        RenderCommand.UnbindBuffer(BufferType.Index);
+        RenderCommand.ReleaseShader();
+
+    }
 
     // Holds all the layers that the renderer will run through.
     // Remembder - Order here matters: the renderer will iterate through this from [0] to [length-1].
