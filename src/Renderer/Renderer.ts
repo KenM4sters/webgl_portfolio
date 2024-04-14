@@ -52,7 +52,7 @@ export default class Renderer
         RenderCommand.EnableDepthTest(config.DepthTest);
         RenderCommand.ClearColorBufferBit(config.ClearColorBit);
         RenderCommand.ClearDepthBufferBit(config.ClearDepthBit);
-        RenderCommand.SetClearColor([0.1, 0.1, 0.1, 1.0]);
+        RenderCommand.SetClearColor([0.4, 0.1, 0.1, 1.0]);
 
         // Render the layer.
         layer.Render();

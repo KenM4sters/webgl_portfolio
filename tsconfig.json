@@ -19,5 +19,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/Animus.ts", "src/*.ts", "src/Layers/ScreenQuad.ts", "src/Layers/Scene.ts"]
+  "include": ["src/*.ts", "src/**/*.ts", "src/**/*.vert", "src/**/*.frag"]
 }

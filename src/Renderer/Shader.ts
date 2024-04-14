@@ -31,27 +31,24 @@ export class Shader
     // Setters
     SetName(name : string) { this.debugName = name; }
 
-    private Compile(vScriptId : string, fScriptId : string) : void 
+    private Compile(vSource : string, fSource : string) : void 
     {   
-        // Firstly, we need to grab the actual source code of the script in string format.
-        var vShaderSource : string | null | undefined = document.getElementById(vScriptId)?.textContent;
-        var fShaderSource : string | null | undefined = document.getElementById(fScriptId)?.textContent;
-
-        if(!vShaderSource || !fShaderSource)
+        if(!vSource || !fSource)
             throw new Error("Failed to get Shader source code from scriptId!");
 
         // Secondly, we need to create glPrograms for each shader.
         var vShader = gl.createShader(gl.VERTEX_SHADER);
         if(vShader == null) throw new Error("Failed to create vertex shader!");
-        gl.shaderSource(vShader, vShaderSource);
+        gl.shaderSource(vShader, vSource);
         gl.compileShader(vShader);
-        // console.log(gl.getShaderInfoLog(vShader));
+        if(gl.getShaderInfoLog(vShader)) console.log(gl.getShaderInfoLog(vShader));
+        
 
         var fShader = gl.createShader(gl.FRAGMENT_SHADER);
-        if(fShader == null) throw new Error("Faield to create fragment shader!");
-        gl.shaderSource(fShader, fShaderSource);
+        if(fShader == null) throw new Error("Failed to create fragment shader!");
+        gl.shaderSource(fShader, fSource);
         gl.compileShader(fShader);
-        // console.log(gl.getShaderInfoLog(fShader));
+        if(gl.getShaderInfoLog(fShader)) console.log(gl.getShaderInfoLog(fShader));
 
 
         // Thirdly, we need to link the 2 shaders into a single shader program that we can use/release
@@ -63,7 +60,7 @@ export class Shader
         gl.linkProgram(this.ID.val);
         if (!gl.getProgramParameter(this.ID.val, gl.LINK_STATUS)) {
             console.warn("Could not initialise shaders");
-            console.log(gl.getProgramInfoLog(this.ID));
+            console.log(gl.getProgramInfoLog(this.ID.val));
         }
         gl.useProgram(this.ID.val);        
     }

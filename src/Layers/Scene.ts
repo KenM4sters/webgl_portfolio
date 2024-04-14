@@ -12,6 +12,10 @@ import { ImageChannels, ImageConfig, TextureType } from "../Renderer/Texture";
 import VertexArray from "../Renderer/VertexArray";
 import {SMALL_SQUARE_VERTCES_COMPLETE, SQUARE_INDICES } from "../Utils";
 
+// Shaders
+import basicVertSource from "../Shaders/BASIC_SHADER.vert?raw";
+import basicFragSource from "../Shaders/BASIC_SHADER.frag?raw";
+
 export default class Scene extends RenderLayer
 {
     constructor(name : string, camera : PerspectiveCamera) {
@@ -34,7 +38,7 @@ export default class Scene extends RenderLayer
         var EBO = new IndexBuffer(SQUARE_INDICES);
         this.vertexArray = new VertexArray(VBO, EBO);
 
-        this.shader = Shader.Create("vBasicShader", "fBasicShader", "SCREEN_QUAD_SHADER");
+        this.shader = Shader.Create(basicVertSource, basicFragSource, "SCREEN_QUAD_SHADER");
 
         // Since we'll be rendering our scene to an off-screen render buffer, and storing the results
         // in a texture to be used for the "SreenQuad" render layer, we need to define this.renderTarget

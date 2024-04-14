@@ -2,10 +2,10 @@ import { RenderCommand } from "./Renderer/RenderCommand";
 import Renderer from "./Renderer/Renderer";
 
 var canvas = document.querySelector("#glcanvas") as HTMLCanvasElement | null;
-if (canvas == null) throw new Error("#glcanvas cannot be found!");
+if (!canvas) throw new Error("#glcanvas cannot be found!");
 
 export var gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
-if (gl == null) throw new Error("webgl context is not available!");
+if (!gl) throw new Error("webgl context is not available!");
 
 const devicePixelRatio = window.devicePixelRatio || 1;
 
