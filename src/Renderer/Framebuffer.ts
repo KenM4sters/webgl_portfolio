@@ -1,3 +1,4 @@
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from "../App";
 import { Id } from "./Buffer";
 import { RenderCommand } from "./RenderCommand";
 import { Texture2D, ImageConfig, TextureType } from "./Texture";

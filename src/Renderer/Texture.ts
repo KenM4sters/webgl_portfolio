@@ -40,7 +40,7 @@ abstract class Texture
     constructor(config : ImageConfig, name : string, data : Uint8Array | null = null) 
     {
         this.config = config;
-        // this.data.val = data
+        this.data = {val: data}
         this.name = name;
 
         this.Init();
@@ -48,7 +48,7 @@ abstract class Texture
 
     protected Id : Id<WebGLTexture | null> = {val: null};
     protected config : ImageConfig;
-    protected data : TexData<Uint8Array | HTMLImageElement | null> = {val: null};
+    protected data : TexData<Uint8Array | HTMLImageElement | null>;
     public name : string = "DEFAULT";
 
     abstract Init() : void;

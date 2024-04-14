@@ -7,8 +7,10 @@ if (canvas == null) throw new Error("#glcanvas cannot be found!");
 export var gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
 if (gl == null) throw new Error("webgl context is not available!");
 
-export var SCREEN_WIDTH : number = window.innerWidth * Math.max(window.devicePixelRatio, 2);
-export var SCREEN_HEIGHT : number = window.innerHeight * Math.max(window.devicePixelRatio, 2);
+const devicePixelRatio = window.devicePixelRatio || 1;
+
+export var SCREEN_WIDTH : number = canvas.width * Math.max(devicePixelRatio, 2);
+export var SCREEN_HEIGHT : number = canvas.height * Math.max(devicePixelRatio, 2);
 
 
 export default abstract class App {
@@ -34,10 +36,16 @@ export default abstract class App {
             canvasHeight = window.innerHeight;
         }
 
-        SCREEN_WIDTH = canvasWidth * Math.max(window.devicePixelRatio, 2);
-        SCREEN_HEIGHT = canvasHeight * Math.max(window.devicePixelRatio, 2);
+        SCREEN_WIDTH = canvasWidth * Math.max(devicePixelRatio, 2);
+        SCREEN_HEIGHT = canvasHeight * Math.max(devicePixelRatio, 2);
 
         RenderCommand.SetViewportDimensions(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        this.canvas.width = Math.round(SCREEN_WIDTH);
+        this.canvas.height = Math.round(SCREEN_HEIGHT);
+
+        console.log(SCREEN_WIDTH, SCREEN_HEIGHT);
+        
 
     }
 
