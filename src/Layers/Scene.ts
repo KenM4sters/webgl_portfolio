@@ -1,5 +1,5 @@
 import { SCREEN_HEIGHT, SCREEN_WIDTH, gl } from "../App";
-import PerspectiveCamera from "../Camera/PerspectiveCamera";
+import PerspectiveCamera, { CameraDirections } from "../Camera/PerspectiveCamera";
 import { Light } from "../Light"
 import { Mesh } from "../Mesh"
 import RenderLayer from "../RenderLayer";
@@ -22,7 +22,7 @@ export default class Scene extends RenderLayer
 
     override Prepare(): void 
     {
-        var square_geo = AssetManager.geometries["SQUARE"];
+        var square_geo = AssetManager.geometries["CUBE"];
         var square_mesh = new Mesh(square_geo, 0);
         this.sceneObjects.push(square_mesh);
 
@@ -87,6 +87,19 @@ export default class Scene extends RenderLayer
 
         // Reset the renderTarget.
         this.renderTarget = new Framebuffer(imageConfig);
+    }
+
+    override ProcessUserInput(event : KeyboardEvent | MouseEvent): void 
+    {
+        if(event instanceof KeyboardEvent) 
+        {
+            if(event.key == "w") this.camera.ProcessUserInput(CameraDirections.FORWARD);
+            if(event.key == "A") this.camera.ProcessUserInput(CameraDirections.LEFT);
+            if(event.key == "S") this.camera.ProcessUserInput(CameraDirections.BACKWARD);
+            if(event.key == "D") this.camera.ProcessUserInput(CameraDirections.RIGHT);
+            if(event.key == "Q") this.camera.ProcessUserInput(CameraDirections.UP);
+            if(event.key == "E") this.camera.ProcessUserInput(CameraDirections.DOWN);
+        }
     }
 
     Push(obj : Mesh | Light) : void 

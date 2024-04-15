@@ -12,7 +12,8 @@ export class Animus extends App
         
         // Event listeners.
         window.addEventListener("resize", () => this.Resize());
-        window.addEventListener("mousemove", () => this.HandleCursorMovement())
+        window.addEventListener("mousemove", (event : MouseEvent) => this.HandleUserInput(event))
+        window.addEventListener("keydown", (event : KeyboardEvent) => this.HandleUserInput(event));
 
         AssetManager.LoadAllAssets(); // Load all assets.
 
@@ -40,9 +41,11 @@ export class Animus extends App
         this.renderer.Resize();
     }
 
-    HandleCursorMovement() : void
+
+    HandleUserInput(event : KeyboardEvent | MouseEvent) : void 
     {
-        
+        this.scene.ProcessUserInput(event);
+        this.screenQuad.ProcessUserInput(event);
     }
 
 

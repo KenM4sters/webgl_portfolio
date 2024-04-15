@@ -42,11 +42,7 @@ export default abstract class App {
         RenderCommand.SetViewportDimensions(SCREEN_WIDTH, SCREEN_HEIGHT);
 
         this.canvas.width = Math.round(SCREEN_WIDTH);
-        this.canvas.height = Math.round(SCREEN_HEIGHT);
-
-        console.log(SCREEN_WIDTH, SCREEN_HEIGHT);
-        
-
+        this.canvas.height = Math.round(SCREEN_HEIGHT);        
     }
 
     protected renderer : Renderer = new Renderer();

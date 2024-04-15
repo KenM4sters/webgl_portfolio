@@ -7,7 +7,7 @@ import screenQuadVertSource from "../Shaders/SCREEN_QUAD_SHADER.vert?raw";
 import screenQuadFragSource from "../Shaders/SCREEN_QUAD_SHADER.frag?raw";
 import basicVertSource from "../Shaders/BASIC_SHADER.vert?raw";
 import basicFragSource from "../Shaders/BASIC_SHADER.frag?raw";
-import { Geometry, SquareGeometry } from "../Geometry";
+import { CubeGeometry, Geometry, SquareGeometry } from "../Geometry";
 
 export default class AssetManager 
 {
@@ -25,6 +25,7 @@ export default class AssetManager
 
         // Geometries
         var SQUARE_GEOMETRY = AssetManager.geometries["SQUARE"] = new SquareGeometry(); 
+        var CUBE_GEOMETRY = AssetManager.geometries["CUBE"] = new CubeGeometry(); 
     }
 
     public static materials : Array<Material> = new Array<Material>();

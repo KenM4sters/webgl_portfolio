@@ -25,6 +25,7 @@ export default abstract class RenderLayer
     abstract Prepare() : void;
     abstract Render(camera : PerspectiveCamera) : void;
     abstract Resize() : void;
+    abstract ProcessUserInput(event : KeyboardEvent | MouseEvent) : void;
 
     // Get/Set the framebuffer that this layer renders to.
     GetRenderTarget() : Framebuffer | null { return this.renderTarget; }

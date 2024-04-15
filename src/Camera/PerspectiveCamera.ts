@@ -3,8 +3,13 @@ import * as glm from "gl-matrix";
 
 export enum CameraDirections  
 {
-
-}
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN
+};
 
 export default class PerspectiveCamera 
 {
@@ -25,6 +30,18 @@ export default class PerspectiveCamera
         glm.mat4.perspective(this.projectionMatrix, glm.glMatrix.toRadian(this.fov), SCREEN_WIDTH/SCREEN_WIDTH, 0.1, 1000);
     }
 
+    public ProcessUserInput(dir : CameraDirections) : void 
+    {
+        if(dir == CameraDirections.FORWARD) this.position = glm.vec3.add(glm.vec3.create(), this.position, this.front);
+        if(dir == CameraDirections.BACKWARD) this.position = glm.vec3.add(glm.vec3.create(), this.position, glm.vec3.negate(this.front, this.front));
+        if(dir == CameraDirections.LEFT) this.position = glm.vec3.add(glm.vec3.create(), this.position, glm.vec3.negate(this.right, this.right));
+        if(dir == CameraDirections.RIGHT) this.position = glm.vec3.add(glm.vec3.create(), this.position, this.right);
+        if(dir == CameraDirections.UP) this.position = glm.vec3.add(glm.vec3.create(), this.position, this.up);
+        if(dir == CameraDirections.DOWN) this.position = glm.vec3.add(glm.vec3.create(), this.position, glm.vec3.negate(this.up, this.up));
+
+        this.UpdateViewMatrix();
+    }
+
     // Getters.
     public GetProjectionMatrix() : glm.mat4 { return this.projectionMatrix; }
     public GetViewMatrix() : glm.mat4 { return this.viewMatrix; }
@@ -37,7 +54,9 @@ export default class PerspectiveCamera
     
     private front : glm.vec3 = [0.0, 0.0, -1.0];
     private up : glm.vec3 = [0.0, 1.0, 0.0];
+    private right : glm.vec3 = [1.0, 0.0, 0.0];
     private fov : number = 45;
+    private movementSpeed : number = 0.3;
 
     private projectionMatrix : glm.mat4 = glm.mat4.create();
     private viewMatrix : glm.mat4 = glm.mat4.create();

@@ -46,5 +46,10 @@ export default class ScreenQuad extends RenderLayer
         
     }
 
+    override ProcessUserInput(event : KeyboardEvent | MouseEvent): void 
+    {
+        
+    }
+
     private mesh !: Mesh;
 }
