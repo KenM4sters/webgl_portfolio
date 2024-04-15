@@ -4,10 +4,13 @@ import { Mesh } from "../Mesh";
 import RenderLayer from "../RenderLayer";
 import { RenderCommand } from "../Renderer/RenderCommand";
 import Renderer from "../Renderer/Renderer";
-import { ImageChannels, ImageConfig, TextureType } from "../Renderer/Texture";
+import { TextureType } from "../Renderer/Texture";
 import AssetManager from "./AssetManager";
 
-
+interface RenderControls 
+{
+    Exposure : number;
+};
 
 export default class ScreenQuad extends RenderLayer 
 {
@@ -20,6 +23,8 @@ export default class ScreenQuad extends RenderLayer
     {
         var screen_geo : Geometry = AssetManager.geometries["SQUARE"];
         this.mesh = new Mesh(screen_geo, 1);
+
+        Gui.add(this.renderControls, "Exposure", 0, 50, 0.1);
     }
 
     override Render(): void 
@@ -33,6 +38,7 @@ export default class ScreenQuad extends RenderLayer
 
         RenderCommand.SetInt(mat.GetShader().GetId(), "tex", 0); 
         RenderCommand.SetVec3f(mat.GetShader().GetId(), "Color", [1.0, 0.2, 1.0]);
+        RenderCommand.SetFloat(mat.GetShader().GetId(), "Exposure", this.renderControls.Exposure);
 
         Renderer.DrawMesh(this.mesh);
 
@@ -50,4 +56,5 @@ export default class ScreenQuad extends RenderLayer
     }
 
     private mesh !: Mesh;
+    private renderControls : RenderControls = {Exposure : 0.8};
 }

@@ -42,6 +42,7 @@ export default class Scene extends RenderLayer
 
         // Light 1
         var light1 = new PointLight(glm.vec3.fromValues(1.0, 1.0, 1.0), 1.0);
+        light1.intensity = 1.9;
         light1.transforms.Translation = glm.vec3.fromValues(1.0, 2.0, 2.0);
         light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
         this.Push(light1);
@@ -53,11 +54,11 @@ export default class Scene extends RenderLayer
         var imageConfig : ImageConfig = {
             TargetType: gl.TEXTURE_2D,
             MipMapLevel: 0,
-            NChannels: gl.RGBA,
+            NChannels: gl.RGBA32F,
             Width: SCREEN_WIDTH,
             Height: SCREEN_HEIGHT,
             Format: gl.RGBA,
-            DataType: gl.UNSIGNED_BYTE
+            DataType: gl.FLOAT
         }
 
         this.renderTarget = new Framebuffer(imageConfig);
@@ -68,59 +69,59 @@ export default class Scene extends RenderLayer
         // GUI Parameters.
 
         // Translate 
-        Gui.add(mesh1.transforms.Translation, '0' , -100.0, 100.0, 0.01).name("Mesh1|PosX").onChange(() => {
+        Gui.add(mesh1.transforms.Translation, '0', -100.0, 100.0, 0.01).name("Mesh1|PosX").onChange(() => {
             mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
         })
-        Gui.add(mesh1.transforms.Translation, '1' , -100.0, 100.0, 0.01).name("Mesh1|PosY").onChange(() => {
+        Gui.add(mesh1.transforms.Translation, '1', -100.0, 100.0, 0.01).name("Mesh1|PosY").onChange(() => {
             mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
         })
-        Gui.add(mesh1.transforms.Translation, '2' , -100.0, 100.0, 0.01).name("Mesh1|PosZ").onChange(() => {
+        Gui.add(mesh1.transforms.Translation, '2', -100.0, 100.0, 0.01).name("Mesh1|PosZ").onChange(() => {
             mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
         })
-        Gui.add(mesh2.transforms.Translation, '0' , -100.0, 100.0, 0.01).name("Mesh2|PosX").onChange(() => {
+        Gui.add(mesh2.transforms.Translation, '0', -100.0, 100.0, 0.01).name("Mesh2|PosX").onChange(() => {
             mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
         })
-        Gui.add(mesh2.transforms.Translation, '1' , -100.0, 100.0, 0.01).name("Mesh2|PosY").onChange(() => {
+        Gui.add(mesh2.transforms.Translation, '1', -100.0, 100.0, 0.01).name("Mesh2|PosY").onChange(() => {
             mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
         })
-        Gui.add(mesh2.transforms.Translation, '2' , -100.0, 100.0, 0.01).name("Mesh2|PosZ").onChange(() => {
+        Gui.add(mesh2.transforms.Translation, '2', -100.0, 100.0, 0.01).name("Mesh2|PosZ").onChange(() => {
             mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
         })
 
         // Scale
-        Gui.add(mesh1.transforms.Scale, '0' , -100.0, 100.0, 0.01).name("Mesh1|ScaleX").onChange(() => {
+        Gui.add(mesh1.transforms.Scale, '0', -100.0, 100.0, 0.01).name("Mesh1|ScaleX").onChange(() => {
             mesh1.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Scale);
         })
-        Gui.add(mesh1.transforms.Scale, '1' , -100.0, 100.0, 0.01).name("Mesh1|ScaleY").onChange(() => {
+        Gui.add(mesh1.transforms.Scale, '1', -100.0, 100.0, 0.01).name("Mesh1|ScaleY").onChange(() => {
             mesh1.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Scale);
         })
-        Gui.add(mesh1.transforms.Scale, '2' , -100.0, 100.0, 0.01).name("Mesh1|ScaleZ").onChange(() => {
+        Gui.add(mesh1.transforms.Scale, '2', -100.0, 100.0, 0.01).name("Mesh1|ScaleZ").onChange(() => {
             mesh1.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Scale);
         })
-        Gui.add(mesh2.transforms.Scale, '0' , -100.0, 100.0, 0.01).name("Mesh2|ScaleX").onChange(() => {
+        Gui.add(mesh2.transforms.Scale, '0', -100.0, 100.0, 0.01).name("Mesh2|ScaleX").onChange(() => {
             mesh2.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Scale);
         })
-        Gui.add(mesh2.transforms.Scale, '1' , -100.0, 100.0, 0.01).name("Mesh2|ScaleY").onChange(() => {
+        Gui.add(mesh2.transforms.Scale, '1', -100.0, 100.0, 0.01).name("Mesh2|ScaleY").onChange(() => {
             mesh2.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Scale);
         })
-        Gui.add(mesh2.transforms.Scale, '2' , -100.0, 100.0, 0.01).name("Mesh2|ScaleZ").onChange(() => {
+        Gui.add(mesh2.transforms.Scale, '2', -100.0, 100.0, 0.01).name("Mesh2|ScaleZ").onChange(() => {
             mesh2.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Scale);
         })
         
         // Lights
-        Gui.add(light1.transforms.Translation, '0' , -100.0, 100.0, 0.01).name("Light1|PosX").onChange(() => {
+        Gui.add(light1.transforms.Translation, '0', -100.0, 100.0, 0.01).name("Light1|PosX").onChange(() => {
             light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
         })
-        Gui.add(light1.transforms.Translation, '1' , -100.0, 100.0, 0.01).name("Light1|PosY").onChange(() => {
+        Gui.add(light1.transforms.Translation, '1', -100.0, 100.0, 0.01).name("Light1|PosY").onChange(() => {
             light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
         })
-        Gui.add(light1.transforms.Translation, '2' , -100.0, 100.0, 0.01).name("Light1|PosZ").onChange(() => {
+        Gui.add(light1.transforms.Translation, '2', -100.0, 100.0, 0.01).name("Light1|PosZ").onChange(() => {
             light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
         })
-        Gui.add(light1, 'intensity' , -10.0, 10.0, 0.01).name("Light1|Intensity");
-        Gui.add(light1.color, '0' , -1.0, 1.0, 0.01).name("Light1|ColorR");
-        Gui.add(light1.color, '1' , -1.0, 1.0, 0.01).name("Light1|ColorG");
-        Gui.add(light1.color, '2' , -1.0, 1.0, 0.01).name("Light1|ColorB");
+        Gui.add(light1, 'intensity', -10.0, 10.0, 0.01).name("Light1|Intensity");
+        Gui.add(light1.color, '0', -1.0, 1.0, 0.01).name("Light1|ColorR");
+        Gui.add(light1.color, '1', -1.0, 1.0, 0.01).name("Light1|ColorG");
+        Gui.add(light1.color, '2', -1.0, 1.0, 0.01).name("Light1|ColorB");
     }
 
     override Render(camera : PerspectiveCamera): void 
@@ -181,11 +182,11 @@ export default class Scene extends RenderLayer
         var imageConfig : ImageConfig = {
             TargetType: gl.TEXTURE_2D,
             MipMapLevel: 0,
-            NChannels: gl.RGBA,
+            NChannels: gl.RGBA32F,
             Width: SCREEN_WIDTH,
             Height: SCREEN_HEIGHT,
             Format: gl.RGBA,
-            DataType: gl.UNSIGNED_BYTE
+            DataType: gl.FLOAT
         }
 
         // Reset the renderTarget.

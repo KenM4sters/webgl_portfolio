@@ -37,10 +37,10 @@ export interface ImageConfig {
 // classes.
 abstract class Texture 
 {
-    constructor(config : ImageConfig, name : string, data : Uint8Array | null = null) 
+    constructor(config : ImageConfig, name : string, data : Uint8Array | Float32Array | null = null) 
     {
         this.config = config;
-        // this.data = {val: data}
+        this.data = {val: data}
         this.name = name;
 
         this.Init();
@@ -48,7 +48,7 @@ abstract class Texture
 
     protected Id : Id<WebGLTexture | null> = {val: null};
     protected config : ImageConfig;
-    protected data : TexData<Uint8Array | HTMLImageElement | null> = {val: null}
+    protected data : TexData<Uint8Array | HTMLImageElement | Float32Array | null> = {val: null}
     public name : string = "DEFAULT";
 
     abstract Init() : void;
@@ -57,11 +57,11 @@ abstract class Texture
     // Getters
     GetId() : Id<WebGLTexture | null> { return this.Id; }
     GetConfig() : ImageConfig { return this.config; }
-    GetData() : TexData<Uint8Array | HTMLImageElement | null> { return this.data; }
+    GetData() : TexData<Uint8Array | HTMLImageElement | Float32Array | null> { return this.data; }
 
     // Setters
     SetConfig(config : ImageConfig) : void { this.config = config;  }
-    SetData(texData : TexData<Uint8Array | HTMLImageElement | null>) : void { this.data = texData}
+    SetData(texData : TexData<Uint8Array | HTMLImageElement | Float32Array | null>) : void { this.data = texData}
     
 };
 
@@ -69,7 +69,7 @@ abstract class Texture
 // that can be loaded via the LoadImage() method.
 export class Texture2D extends Texture 
 {
-    constructor(config : ImageConfig, name : string, data : Uint8Array | null = null) 
+    constructor(config : ImageConfig, name : string, data : Uint8Array | Float32Array | null = null) 
     {
         super(config, name, data);
     }
@@ -78,7 +78,7 @@ export class Texture2D extends Texture
     {
         this.Id = {val: RenderCommand.CreateTexture()};
         RenderCommand.BindTexture(this.Id, TextureType.Tex2D, 0);
-        RenderCommand.SetTexture2DArray(this.config, this.data as TexData<Uint8Array | null>);
+        RenderCommand.SetTexture2DArray(this.config, this.data as TexData<Uint8Array | Float32Array | null>);
     }
 
     // Loads an Image object from a given filepath and sets the member data variable to the image object.
@@ -101,7 +101,7 @@ export class Texture2D extends Texture
     // This function is meant to be called whenever you want to instantiate a new instance of the 
     // class, but it's just a personal preference/habbit for me from C++, so of course you can just
     // manually create an instance with the new keyword and not bother calling Create().
-    static Create(config : ImageConfig, name : string, data : Uint8Array | null = null) : Texture2D 
+    static Create(config : ImageConfig, name : string, data : Uint8Array | Float32Array | null = null) : Texture2D 
     {
         return new Texture2D(config, name, data);
     }

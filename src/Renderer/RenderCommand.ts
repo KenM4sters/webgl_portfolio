@@ -198,7 +198,7 @@ export class RenderCommand
         gl.activeTexture(gl.TEXTURE0 + texUnit);
         gl.bindTexture(ConvertTextureTypeToNative(type), null);
     }
-    public static SetTexture2DArray(config : ImageConfig, data : TexData<Uint8Array | null>) : void 
+    public static SetTexture2DArray(config : ImageConfig, data : TexData<Uint8Array | Float32Array | null>) : void 
     {
         // if(data instanceof HTMLImageElement) throw new Error("RenderCommand | Calling SetTexture2DArray on an image element!");
         // Initialize texture parameters
