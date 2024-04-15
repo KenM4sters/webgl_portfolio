@@ -7,6 +7,7 @@ import { Texture2D, TextureType } from "./Texture";
 import { Mesh } from "../Mesh";
 import AssetManager from "../Layers/AssetManager";
 import PerspectiveCamera from "../Camera/PerspectiveCamera";
+import GUI from "lil-gui";
 
 export default class Renderer 
 {
@@ -19,19 +20,19 @@ export default class Renderer
 
     public PushLayer(layer : RenderLayer) : void
     {
-        layer.Prepare();
+        layer.Prepare(this.Gui);
         Renderer.layers.push(layer);
     }
 
-    public Run(camera: PerspectiveCamera) : void
+    public Run(camera: PerspectiveCamera, dt : number) : void
     {
         for(const layer of Renderer.layers) 
         {
-            this.RenderLayer(layer, camera);
+            this.RenderLayer(layer, camera, dt);
         }
     }
 
-    private RenderLayer(layer : RenderLayer, camera : PerspectiveCamera) : void
+    private RenderLayer(layer : RenderLayer, camera : PerspectiveCamera, dt : number) : void
     {   
         // Get Props.
         let framebuffer = layer.GetRenderTarget()
@@ -83,12 +84,6 @@ export default class Renderer
         if(this.results[key]) return this.results[key];
         else throw new Error(`Renderer | Failed to find render result with key : ${key}`);
     }
-
-
-
-
-
-
 
     //============================================================
     // Helper functions that take the load off the RenderCommand.
@@ -144,9 +139,12 @@ export default class Renderer
     }
 
     // Holds all the layers that the renderer will run through.
-    // Remembder - Order here matters: the renderer will iterate through this from [0] to [length-1].
+    // Remember - Order here matters: the renderer will iterate through this from [0] to [length-1].
     private static layers : Array<RenderLayer> = new Array<RenderLayer>();
 
     // Currently not being used, but I think it could come in handy down the road.
     private static results : {[key : string]: Texture2D} = {};
+
+    // Gui
+    private Gui : GUI = new GUI();
 };

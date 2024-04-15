@@ -1,3 +1,4 @@
+import GUI from "lil-gui";
 import { Geometry } from "../Geometry";
 import { Material } from "../Material";
 import { Mesh } from "../Mesh";
@@ -18,7 +19,7 @@ export default class ScreenQuad extends RenderLayer
         super(name);
     }
 
-    override Prepare(): void 
+    override Prepare(Gui : GUI): void 
     {
         var screen_geo : Geometry = AssetManager.geometries["SQUARE"];
         this.mesh = new Mesh(screen_geo, 1);
@@ -46,7 +47,7 @@ export default class ScreenQuad extends RenderLayer
         
     }
 
-    override ProcessUserInput(event : KeyboardEvent | MouseEvent): void 
+    override ProcessUserInput(dt : number): void 
     {
         
     }

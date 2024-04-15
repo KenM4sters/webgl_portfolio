@@ -11,6 +11,7 @@ import { ImageConfig, Texture2D } from "../Renderer/Texture";
 import AssetManager from "./AssetManager";
 import { PhysicalMaterial } from "../Material";
 import GUI from "lil-gui";
+import Input from "../Input";
 
 // Shaders
 
@@ -22,7 +23,7 @@ export default class Scene extends RenderLayer
         this.camera = camera;
     }
 
-    override Prepare(): void 
+    override Prepare(Gui : GUI): void 
     {
         // Mesh 1
         var geo1 = AssetManager.geometries["CUBE"];
@@ -46,7 +47,7 @@ export default class Scene extends RenderLayer
         
         // Since we'll be rendering our scene to an off-screen render buffer, and storing the results
         // in a texture to be used for the "SreenQuad" render layer, we need to define this.renderTarget
-        // as our own framebuffer.
+        // as our own custom framebuffer.
         var imageConfig : ImageConfig = {
             TargetType: gl.TEXTURE_2D,
             MipMapLevel: 0,
@@ -61,10 +62,34 @@ export default class Scene extends RenderLayer
 
         this.renderConfig.CacheResults = true; // When set to true, this stores the results in the renderer for free access by all layers.
 
-        var gui = new GUI();
-        gui.add(mesh1.transforms.Translation, '0' , -5.0, 5.0, 0.01);
 
+        // GUI Parameters.
+        Gui.add(mesh1.transforms.Translation, '0' , -5.0, 5.0, 0.01).name("Mesh1|PosX").onChange(() => {
+            mesh1.transforms.ModelMatrix = glm.mat4.create();
+            mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
+        })
+        Gui.add(mesh1.transforms.Translation, '1' , -5.0, 5.0, 0.01).name("Mesh1|PosY").onChange(() => {
+            mesh1.transforms.ModelMatrix = glm.mat4.create();
+            mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
+        })
+        Gui.add(mesh1.transforms.Translation, '2' , -5.0, 5.0, 0.01).name("Mesh1|PosZ").onChange(() => {
+            mesh1.transforms.ModelMatrix = glm.mat4.create();
+            mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
+        })
+        Gui.add(mesh2.transforms.Translation, '0' , -5.0, 5.0, 0.01).name("Mesh2|PosX").onChange(() => {
+            mesh2.transforms.ModelMatrix = glm.mat4.create();
+            mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
+        })
+        Gui.add(mesh2.transforms.Translation, '1' , -5.0, 5.0, 0.01).name("Mesh2|PosY").onChange(() => {
+            mesh2.transforms.ModelMatrix = glm.mat4.create();
+            mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
+        })
+        Gui.add(mesh2.transforms.Translation, '2' , -5.0, 5.0, 0.01).name("Mesh2|PosZ").onChange(() => {
+            mesh2.transforms.ModelMatrix = glm.mat4.create();
+            mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
+        })
 
+        
     }
 
     override Render(camera : PerspectiveCamera): void 
@@ -131,17 +156,14 @@ export default class Scene extends RenderLayer
         this.renderTarget = new Framebuffer(imageConfig);
     }
 
-    override ProcessUserInput(event : KeyboardEvent | MouseEvent): void 
+    override ProcessUserInput(dt : number): void 
     {
-        if(event instanceof KeyboardEvent) 
-        {
-            if(event.key == "w") this.camera.ProcessUserInput(CameraDirections.FORWARD);
-            if(event.key == "a") this.camera.ProcessUserInput(CameraDirections.LEFT);
-            if(event.key == "s") this.camera.ProcessUserInput(CameraDirections.BACKWARD);
-            if(event.key == "d") this.camera.ProcessUserInput(CameraDirections.RIGHT);
-            if(event.key == "q") this.camera.ProcessUserInput(CameraDirections.UP);
-            if(event.key == "e") this.camera.ProcessUserInput(CameraDirections.DOWN);
-        }
+        Input.IsKeyPressed("w") ? this.camera.ProcessUserInput(CameraDirections.FORWARD, dt) : null;
+        Input.IsKeyPressed("a") ? this.camera.ProcessUserInput(CameraDirections.LEFT, dt) : null;
+        Input.IsKeyPressed("s") ? this.camera.ProcessUserInput(CameraDirections.BACKWARD, dt) : null;
+        Input.IsKeyPressed("d") ? this.camera.ProcessUserInput(CameraDirections.RIGHT, dt) : null;
+        Input.IsKeyPressed("q") ? this.camera.ProcessUserInput(CameraDirections.UP, dt) : null;
+        Input.IsKeyPressed("e") ? this.camera.ProcessUserInput(CameraDirections.DOWN, dt) : null;
     }   
 
     public Push(obj : Mesh | Light) : void 

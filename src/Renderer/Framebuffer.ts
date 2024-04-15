@@ -1,9 +1,14 @@
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "../App";
 import { Id } from "./Buffer";
 import { RenderCommand } from "./RenderCommand";
-import { Texture2D, ImageConfig, TextureType } from "./Texture";
+import { Texture2D, ImageConfig } from "./Texture";
 
 
+/**
+ * The Framebuffer class handles the generation of a new framebuffers and renderbuffers and stores
+ * there Id's to be accessed by the render layers. It also handles the creation of a texture and binds
+ * it as the color attachment for the Framebuffer object. This can also be retrieved.
+ *  
+ */
 export default class Framebuffer 
 {
     constructor(targetTexConfig : ImageConfig) {

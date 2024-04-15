@@ -1,6 +1,7 @@
 import Framebuffer from "./Renderer/Framebuffer.ts";
 import { gl } from "./App.ts";
 import PerspectiveCamera from "./Camera/PerspectiveCamera.ts";
+import GUI from "lil-gui";
 
 export enum FramebufferBits 
 {
@@ -22,10 +23,10 @@ export default abstract class RenderLayer
 {
     constructor(public name : string) {}
 
-    abstract Prepare() : void;
+    abstract Prepare(Gui : GUI) : void;
     abstract Render(camera : PerspectiveCamera) : void;
     abstract Resize() : void;
-    abstract ProcessUserInput(event : KeyboardEvent | MouseEvent) : void;
+    abstract ProcessUserInput(dt : number) : void;
 
     // Get/Set the framebuffer that this layer renders to.
     GetRenderTarget() : Framebuffer | null { return this.renderTarget; }
