@@ -1,13 +1,10 @@
 import GUI from "lil-gui";
 import { Geometry } from "../Geometry";
-import { Material } from "../Material";
 import { Mesh } from "../Mesh";
 import RenderLayer from "../RenderLayer";
 import { RenderCommand } from "../Renderer/RenderCommand";
 import Renderer from "../Renderer/Renderer";
-import { Shader, ShaderDataType } from "../Renderer/Shader";
 import { ImageChannels, ImageConfig, TextureType } from "../Renderer/Texture";
-import VertexArray from "../Renderer/VertexArray";
 import AssetManager from "./AssetManager";
 
 

@@ -33,7 +33,6 @@ export class Animus extends App
         const currentFrame : number = performance.now();
         const deltatime : number = (currentFrame - lastFrame) * 0.001;
         lastFrame = currentFrame;
-
                 
         // Not entirely sure what I think about passing the camera to the renderer 
         // in this fasion, but it's quite neat and makes more sense to me than the renderer
@@ -51,7 +50,7 @@ export class Animus extends App
         this.renderer.Resize();
     }
 
-    private camera     : PerspectiveCamera  = new PerspectiveCamera([0.0, 0.0, 5.0]);
+    private camera     : PerspectiveCamera  = new PerspectiveCamera([0.0, 3.0, 20.0]);
     private scene      : Scene              = new Scene("Scene", this.camera);
     private screenQuad : ScreenQuad         = new ScreenQuad("ScreenQuad");
 };

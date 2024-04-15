@@ -20,12 +20,16 @@ export default class AssetManager
         var SCREEN_QUAD_SHADER = Shader.Create(screenQuadVertSource, screenQuadFragSource, "SCREEN_QUAD_SHADER");
 
         // Materials
-        AssetManager.materials.push(new PhysicalMaterial(BASIC_SHADER));
+        var FLOOR_MAT = new PhysicalMaterial(BASIC_SHADER);
+        FLOOR_MAT.Albedo = glm.vec3.fromValues(1.0, 1.0, 1.0);
+        AssetManager.materials.push(FLOOR_MAT);
+        
+        
         AssetManager.materials.push(new PhysicalMaterial(SCREEN_QUAD_SHADER));
 
         // Geometries
-        var SQUARE_GEOMETRY = AssetManager.geometries["SQUARE"] = new SquareGeometry(); 
-        var CUBE_GEOMETRY = AssetManager.geometries["CUBE"] = new CubeGeometry(); 
+        AssetManager.geometries["SQUARE"] = new SquareGeometry(); 
+        AssetManager.geometries["CUBE"] = new CubeGeometry(); 
     }
 
     public static materials : Array<Material> = new Array<Material>();

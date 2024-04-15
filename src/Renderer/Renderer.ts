@@ -61,7 +61,6 @@ export default class Renderer
         layer.Render(camera);
                 
         if(framebuffer?.FBO && config.CacheResults) Renderer.results[layer.name] = framebuffer?.GetColorTexture();
-        // if(framebuffer?.FBO) console.log(framebuffer.GetColorTexture());
 
         // Cleanup.
         if(framebuffer?.FBO) RenderCommand.UnbindFramebuffer();
