@@ -22,7 +22,7 @@ export default class PerspectiveCamera
 
     public UpdateViewMatrix() : void 
     {
-        glm.mat4.lookAt(this.viewMatrix, this.position, this.front, this.up);
+        glm.mat4.lookAt(this.viewMatrix, this.position, glm.vec3.add(glm.vec3.create(), this.position, this.front), this.up);
     }
 
     public UpdateProjectionMatrix() : void 
@@ -33,13 +33,15 @@ export default class PerspectiveCamera
     public ProcessUserInput(dir : CameraDirections) : void 
     {
         if(dir == CameraDirections.FORWARD) this.position = glm.vec3.add(glm.vec3.create(), this.position, this.front);
-        if(dir == CameraDirections.BACKWARD) this.position = glm.vec3.add(glm.vec3.create(), this.position, glm.vec3.negate(this.front, this.front));
-        if(dir == CameraDirections.LEFT) this.position = glm.vec3.add(glm.vec3.create(), this.position, glm.vec3.negate(this.right, this.right));
+        if(dir == CameraDirections.BACKWARD) this.position = glm.vec3.add(glm.vec3.create(), this.position, glm.vec3.negate(glm.vec3.create(), this.front));
+        if(dir == CameraDirections.LEFT) this.position = glm.vec3.add(glm.vec3.create(), this.position, glm.vec3.negate(glm.vec3.create(), this.right));
         if(dir == CameraDirections.RIGHT) this.position = glm.vec3.add(glm.vec3.create(), this.position, this.right);
         if(dir == CameraDirections.UP) this.position = glm.vec3.add(glm.vec3.create(), this.position, this.up);
-        if(dir == CameraDirections.DOWN) this.position = glm.vec3.add(glm.vec3.create(), this.position, glm.vec3.negate(this.up, this.up));
+        if(dir == CameraDirections.DOWN) this.position = glm.vec3.add(glm.vec3.create(), this.position, glm.vec3.negate(glm.vec3.create(), this.up));
 
         this.UpdateViewMatrix();
+        console.log(this.position);
+        
     }
 
     // Getters.

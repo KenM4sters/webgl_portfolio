@@ -1,8 +1,10 @@
+import * as glm from "gl-matrix";
 import { SCREEN_HEIGHT, SCREEN_WIDTH, gl } from "../App";
 import PerspectiveCamera, { CameraDirections } from "../Camera/PerspectiveCamera";
 import { Light } from "../Light"
 import { Mesh } from "../Mesh"
 import RenderLayer from "../RenderLayer";
+import { VertexBuffer } from "../Renderer/Buffer";
 import Framebuffer from "../Renderer/Framebuffer";
 import { RenderCommand } from "../Renderer/RenderCommand";
 import Renderer from "../Renderer/Renderer";
@@ -22,11 +24,18 @@ export default class Scene extends RenderLayer
 
     override Prepare(): void 
     {
-        var square_geo = AssetManager.geometries["CUBE"];
-        var square_mesh = new Mesh(square_geo, 0);
-        this.sceneObjects.push(square_mesh);
+        var geo1 = AssetManager.geometries["CUBE"];
+        var mesh1 = new Mesh(geo1, 0);
+        mesh1.transforms.Translation = glm.vec3.fromValues(-1.0, 0.0, 0.0);
+        mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
+        this.Push(mesh1);
 
-
+        var geo2 = AssetManager.geometries["CUBE"];
+        var mesh2 = new Mesh(geo2, 0);
+        mesh2.transforms.Translation = glm.vec3.fromValues(1.0, 0.0, 0.0);
+        mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
+        this.Push(mesh2);
+        
         // Since we'll be rendering our scene to an off-screen render buffer, and storing the results
         // in a texture to be used for the "SreenQuad" render layer, we need to define this.renderTarget
         // as our own framebuffer.
@@ -94,20 +103,20 @@ export default class Scene extends RenderLayer
         if(event instanceof KeyboardEvent) 
         {
             if(event.key == "w") this.camera.ProcessUserInput(CameraDirections.FORWARD);
-            if(event.key == "A") this.camera.ProcessUserInput(CameraDirections.LEFT);
-            if(event.key == "S") this.camera.ProcessUserInput(CameraDirections.BACKWARD);
-            if(event.key == "D") this.camera.ProcessUserInput(CameraDirections.RIGHT);
-            if(event.key == "Q") this.camera.ProcessUserInput(CameraDirections.UP);
-            if(event.key == "E") this.camera.ProcessUserInput(CameraDirections.DOWN);
+            if(event.key == "a") this.camera.ProcessUserInput(CameraDirections.LEFT);
+            if(event.key == "s") this.camera.ProcessUserInput(CameraDirections.BACKWARD);
+            if(event.key == "d") this.camera.ProcessUserInput(CameraDirections.RIGHT);
+            if(event.key == "q") this.camera.ProcessUserInput(CameraDirections.UP);
+            if(event.key == "e") this.camera.ProcessUserInput(CameraDirections.DOWN);
         }
-    }
+    }   
 
-    Push(obj : Mesh | Light) : void 
+    public Push(obj : Mesh | Light) : void 
     {
         this.sceneObjects.push(obj);
     }
 
-    Traverse(callback: (child : Mesh | Light) => void) 
+    public Traverse(callback: (child : Mesh | Light) => void) 
     {
         for(const obj of this.sceneObjects) 
         {

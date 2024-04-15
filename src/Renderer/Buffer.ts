@@ -110,10 +110,11 @@ export class VertexBuffer implements Buffer
         this.uniqueLayout = layout;
 
         // Update existing layout properties to reflect the new layout.
-        this.uniqueSize = this.uniqueLayout.size;
+        this.uniqueSize = this.uniqueVertexData.length * this.uniqueVertexData.BYTES_PER_ELEMENT
         this.uniqueOffset = VertexBuffer.cachedSize;
         
-        VertexBuffer.cachedSize += this.uniqueVertexData.length * this.uniqueVertexData.BYTES_PER_ELEMENT;
+        VertexBuffer.cachedSize += this.uniqueSize;
+        this.PushLayoutToBuffer();
         this.Init();
     }
 
@@ -125,7 +126,7 @@ export class VertexBuffer implements Buffer
     
     public static Id : Id<WebGLBuffer | null> = {val: null}
     public static cachedVertexData : Float32Array = new Float32Array();
-    public static cachedLayout : Array<BufferAttribLayout>;
+    public static cachedLayout : Array<BufferAttribLayout> = new Array<BufferAttribLayout>();
     public static cachedSize : number = 0;
     
     private uniqueLayout !: BufferAttribLayout;

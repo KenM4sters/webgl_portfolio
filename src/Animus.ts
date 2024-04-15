@@ -49,7 +49,7 @@ export class Animus extends App
     }
 
 
-    private camera     : PerspectiveCamera  = new PerspectiveCamera([0.0, 0.0, -5.0]);
+    private camera     : PerspectiveCamera  = new PerspectiveCamera([0.0, 0.0, 5.0]);
     private scene      : Scene              = new Scene("Scene", this.camera);
     private screenQuad : ScreenQuad         = new ScreenQuad("ScreenQuad");    
 };
