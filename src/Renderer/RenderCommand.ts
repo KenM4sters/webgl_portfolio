@@ -287,7 +287,7 @@ export class RenderCommand
     }
 
     public static ReadFramebufferResults(buffer : {value: Uint8Array}) : void 
-    {
+    {        
     }
 
 

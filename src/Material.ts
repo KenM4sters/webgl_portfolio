@@ -27,7 +27,7 @@ export class PhysicalMaterial extends Material
         super(s);
     }   
 
-    // These values can either be set manually or sampled from a texture (texture most likely).
+    // These values can either be set manually or sampled from a texture (texture most likely, but they'll be numbers by default).
     public Albedo     : glm.vec3 | Texture2D = [0.3, 0.1, 1.0]; 
     public Metallic   : number   | Texture2D = 0.3; 
     public Roughness  : number   | Texture2D = 0.8; 

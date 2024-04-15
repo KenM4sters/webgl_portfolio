@@ -1,7 +1,4 @@
 import * as glm from "gl-matrix";
-import VertexArray from "./Renderer/VertexArray";
-import { Material } from "./Material";
-import Renderer from "./Renderer/Renderer";
 import { Geometry } from "./Geometry";
 
 

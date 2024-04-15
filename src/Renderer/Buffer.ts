@@ -102,6 +102,7 @@ export class VertexBuffer implements Buffer
     public GetUniqueVertexData() : Float32Array { return this.uniqueVertexData; } 
     public GetUniqueOffset() : number { return this.uniqueOffset; } 
     public GetUniqueSize() : number { return this.uniqueSize; } 
+    public GetVerticesCount() : number { return this.nUniqueVertices; } 
 
     // Setters
     public SetLayout(layout : BufferAttribLayout) : void { 
@@ -112,10 +113,11 @@ export class VertexBuffer implements Buffer
         // Update existing layout properties to reflect the new layout.
         this.uniqueSize = this.uniqueVertexData.length * this.uniqueVertexData.BYTES_PER_ELEMENT
         this.uniqueOffset = VertexBuffer.cachedSize;
-        
+        this.nUniqueVertices = this.uniqueSize / this.uniqueLayout.size;
+                
         VertexBuffer.cachedSize += this.uniqueSize;
         this.PushLayoutToBuffer();
-        this.Init();
+        this.Init();        
     }
 
     public PushLayoutToBuffer() : void 
@@ -129,6 +131,7 @@ export class VertexBuffer implements Buffer
     public static cachedLayout : Array<BufferAttribLayout> = new Array<BufferAttribLayout>();
     public static cachedSize : number = 0;
     
+    private nUniqueVertices !: number;
     private uniqueLayout !: BufferAttribLayout;
     private uniqueVertexData : Float32Array;
     private uniqueSize : number = 0

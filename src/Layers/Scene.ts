@@ -1,16 +1,16 @@
 import * as glm from "gl-matrix";
 import { SCREEN_HEIGHT, SCREEN_WIDTH, gl } from "../App";
 import PerspectiveCamera, { CameraDirections } from "../Camera/PerspectiveCamera";
-import { Light } from "../Light"
+import { Light, PointLight } from "../Light"
 import { Mesh } from "../Mesh"
 import RenderLayer from "../RenderLayer";
-import { VertexBuffer } from "../Renderer/Buffer";
 import Framebuffer from "../Renderer/Framebuffer";
 import { RenderCommand } from "../Renderer/RenderCommand";
 import Renderer from "../Renderer/Renderer";
-import { ImageChannels, ImageConfig, TextureType } from "../Renderer/Texture";
-import VertexArray from "../Renderer/VertexArray";
+import { ImageConfig, Texture2D } from "../Renderer/Texture";
 import AssetManager from "./AssetManager";
+import { PhysicalMaterial } from "../Material";
+import GUI from "lil-gui";
 
 // Shaders
 
@@ -24,17 +24,25 @@ export default class Scene extends RenderLayer
 
     override Prepare(): void 
     {
+        // Mesh 1
         var geo1 = AssetManager.geometries["CUBE"];
         var mesh1 = new Mesh(geo1, 0);
         mesh1.transforms.Translation = glm.vec3.fromValues(-1.0, 0.0, 0.0);
         mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
         this.Push(mesh1);
-
+        // Mesh 2
         var geo2 = AssetManager.geometries["CUBE"];
         var mesh2 = new Mesh(geo2, 0);
         mesh2.transforms.Translation = glm.vec3.fromValues(1.0, 0.0, 0.0);
         mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
         this.Push(mesh2);
+
+        // Light 1
+        var light1 = new PointLight(glm.vec3.fromValues(1.0, 1.0, 1.0), 1.0);
+        light1.transforms.Translation = glm.vec3.fromValues(1.0, 2.0, 2.0);
+        light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
+        this.Push(light1);
+
         
         // Since we'll be rendering our scene to an off-screen render buffer, and storing the results
         // in a texture to be used for the "SreenQuad" render layer, we need to define this.renderTarget
@@ -52,23 +60,48 @@ export default class Scene extends RenderLayer
         this.renderTarget = new Framebuffer(imageConfig);
 
         this.renderConfig.CacheResults = true; // When set to true, this stores the results in the renderer for free access by all layers.
-        
+
+        var gui = new GUI();
+        gui.add(mesh1.transforms.Translation, '0' , -5.0, 5.0, 0.01);
+
+
     }
 
     override Render(camera : PerspectiveCamera): void 
     {
-        this.Traverse((child : Mesh | Light) => 
+        this.Traverse((child : Mesh) => 
         {
+            // May end up adding all objects (lights, materials etc) into this.
             if(child instanceof Mesh) 
             {
                 let mat = AssetManager.materials[child.materialIndex];
-                let shader = mat.GetShader();
 
-                RenderCommand.UseShader(shader.GetId());
-                RenderCommand.SetMat4f(shader.GetId(), "model", child.transforms.ModelMatrix);
-                RenderCommand.SetMat4f(shader.GetId(), "view", camera.GetViewMatrix());
-                RenderCommand.SetMat4f(shader.GetId(), "projection", camera.GetProjectionMatrix());
-                RenderCommand.SetVec3f(shader.GetId(), "camera.Position", camera.position);
+                if(mat instanceof PhysicalMaterial) 
+                {
+                    let shader = mat.GetShader();
+                    let Id = shader.GetId();
+    
+                    RenderCommand.UseShader(Id);
+                    RenderCommand.SetMat4f(Id, "model", child.transforms.ModelMatrix);
+                    RenderCommand.SetMat4f(Id, "view", camera.GetViewMatrix());
+                    RenderCommand.SetMat4f(Id, "projection", camera.GetProjectionMatrix());
+                    RenderCommand.SetVec3f(Id, "camera.Position", camera.position);
+                    
+                    mat.Albedo instanceof Texture2D ? console.log("texture mat") : RenderCommand.SetVec3f(Id, "material.Albedo", mat.Albedo);
+                    mat.Metallic instanceof Texture2D ? console.log("texture mat") : RenderCommand.SetFloat(Id, "material.Metallic", mat.Metallic);
+                    mat.Roughness instanceof Texture2D ? console.log("texture mat") : RenderCommand.SetFloat(Id, "material.Roughness", mat.Roughness);
+                    mat.AO instanceof Texture2D ? console.log("texture mat") : RenderCommand.SetFloat(Id, "material.AO", mat.AO);
+
+                    for(const light of this.lights) 
+                    {
+                        var light_index : number = 1;
+                        RenderCommand.SetVec3f(Id, "light" + light_index + ".Position", light.transforms.Translation);
+                        RenderCommand.SetVec3f(Id, "light" + light_index + ".Color", light.color);
+                        RenderCommand.SetFloat(Id, "light" + light_index + ".Intensity", light.intensity);
+                        // console.log("light" + light_index + ".Position");
+                        light_index++;
+                    }
+                }
                 
                 Renderer.DrawMesh(child);
             } 
@@ -113,17 +146,19 @@ export default class Scene extends RenderLayer
 
     public Push(obj : Mesh | Light) : void 
     {
-        this.sceneObjects.push(obj);
+        if(obj instanceof Mesh) this.meshes.push(obj);
+        if(obj instanceof Light) this.lights.push(obj);
     }
 
-    public Traverse(callback: (child : Mesh | Light) => void) 
+    public Traverse(callback: (child : Mesh) => void) 
     {
-        for(const obj of this.sceneObjects) 
+        for(const obj of this.meshes) 
         {
             callback(obj);
         }
     }
 
-    public sceneObjects : Array<Mesh | Light> = new Array<Mesh | Light>();
+    public meshes : Array<Mesh> = new Array<Mesh>();
+    public lights : Array<Light> = new Array<Light>();
     public camera : PerspectiveCamera;
 };

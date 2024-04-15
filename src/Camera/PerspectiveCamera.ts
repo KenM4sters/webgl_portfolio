@@ -39,9 +39,7 @@ export default class PerspectiveCamera
         if(dir == CameraDirections.UP) this.position = glm.vec3.add(glm.vec3.create(), this.position, this.up);
         if(dir == CameraDirections.DOWN) this.position = glm.vec3.add(glm.vec3.create(), this.position, glm.vec3.negate(glm.vec3.create(), this.up));
 
-        this.UpdateViewMatrix();
-        console.log(this.position);
-        
+        this.UpdateViewMatrix();        
     }
 
     // Getters.

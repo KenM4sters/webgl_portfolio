@@ -4,7 +4,6 @@ import VertexArray from "./VertexArray";
 import RenderLayer from "../RenderLayer";
 import { IndexBuffer } from "./Buffer";
 import { Texture2D, TextureType } from "./Texture";
-import { gl } from "../App";
 import { Mesh } from "../Mesh";
 import AssetManager from "../Layers/AssetManager";
 import PerspectiveCamera from "../Camera/PerspectiveCamera";
@@ -54,7 +53,7 @@ export default class Renderer
         RenderCommand.EnableDepthTest(config.DepthTest);
         RenderCommand.ClearColorBufferBit(config.ClearColorBit);
         RenderCommand.ClearDepthBufferBit(config.ClearDepthBit);
-        RenderCommand.SetClearColor([0.4, 0.1, 0.1, 1.0]);
+        RenderCommand.SetClearColor([0.1, 0.1, 0.1, 1.0]);
 
 
         // Render the layer.
@@ -108,7 +107,7 @@ export default class Renderer
             // RenderCommand.BindBuffer(IndexBuffer.Id, BufferType.Index)
             RenderCommand.DrawIndexed(EBO.GetUniqueSize() / EBO.GetUniqueIndices().BYTES_PER_ELEMENT , EBO.GetUniqueOffset());
         } else {
-            RenderCommand.Draw(6);
+            RenderCommand.Draw(VAO.GetVertexBuffer().GetVerticesCount());
         }
 
         // Cleanup.
@@ -134,7 +133,7 @@ export default class Renderer
             // RenderCommand.BindBuffer(IndexBuffer.Id, BufferType.Index)
             RenderCommand.DrawIndexed(EBO.GetUniqueSize() / EBO.GetUniqueIndices().BYTES_PER_ELEMENT , EBO.GetUniqueOffset());
         } else {
-            RenderCommand.Draw(6);
+            RenderCommand.Draw(mesh.geometry.vertexArray.GetVertexBuffer().GetVerticesCount());
         }
 
         // Cleanup.
