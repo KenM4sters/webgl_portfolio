@@ -1,5 +1,4 @@
 import GUI from "lil-gui";
-import { Geometry } from "../Geometry";
 import { Mesh } from "../Mesh";
 import RenderLayer from "../RenderLayer";
 import { RenderCommand } from "../Renderer/RenderCommand";
@@ -10,6 +9,7 @@ import AssetManager, { AssetRegistry } from "./AssetManager";
 interface RenderControls 
 {
     Exposure : number;
+    BloomStrength : number;
 };
 
 export default class ScreenPass extends RenderLayer 
@@ -26,6 +26,7 @@ export default class ScreenPass extends RenderLayer
         this.mesh = new Mesh(screen_geo, AssetRegistry.MAT_HDR);
 
         Gui.add(this.renderControls, "Exposure", 0, 50, 0.1);
+        Gui.add(this.renderControls, "BloomStrength", 0, 1, 0.01);
     }
 
     override Render(): void 
@@ -33,14 +34,17 @@ export default class ScreenPass extends RenderLayer
         var mat = AssetManager.materials.get(this.mesh.materialKey);
         if(!mat) throw new Error("ASSET MANAGER | Failed to get asset!");
 
-        // <-- Will be binding a texture here soon.
         RenderCommand.UseShader(mat.GetShader().GetId());
-        var tex = Renderer.GetRenderResult("Scene");
-        if(tex) RenderCommand.BindTexture(tex.GetId(), TextureType.Tex2D);        
+        var rawScene = Renderer.GetRenderResult("Scene");
+        var blurredScene = Renderer.GetRenderResult("BloomPass");
 
-        RenderCommand.SetInt(mat.GetShader().GetId(), "tex", 0); 
-        RenderCommand.SetVec3f(mat.GetShader().GetId(), "Color", [1.0, 0.2, 1.0]);
+        if(rawScene) RenderCommand.BindTexture(rawScene.GetId(), TextureType.Tex2D);        
+        if(blurredScene) RenderCommand.BindTexture(blurredScene.GetId(), TextureType.Tex2D, 1);        
+
+        RenderCommand.SetInt(mat.GetShader().GetId(), "sceneTex", 0); 
+        RenderCommand.SetInt(mat.GetShader().GetId(), "blurredTex", 1); 
         RenderCommand.SetFloat(mat.GetShader().GetId(), "Exposure", this.renderControls.Exposure);
+        RenderCommand.SetFloat(mat.GetShader().GetId(), "BloomStrength", this.renderControls.BloomStrength);
 
         Renderer.DrawMesh(this.mesh);
 
@@ -58,5 +62,9 @@ export default class ScreenPass extends RenderLayer
     }
 
     private mesh !: Mesh;
-    private renderControls : RenderControls = {Exposure : 0.8};
+    private renderControls : RenderControls = 
+        {
+            Exposure : 0.8,
+            BloomStrength:  0.3
+        };
 }

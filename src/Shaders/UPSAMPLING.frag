@@ -11,7 +11,7 @@ uniform sampler2D srcTexture;
 uniform float filterRadius;
 
 in vec2 vUV;
-layout (location = 0) out vec3 upsample;
+out vec3 upsample;
 
 void main()
 {

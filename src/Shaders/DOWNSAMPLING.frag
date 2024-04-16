@@ -13,7 +13,8 @@ uniform sampler2D srcTexture;
 uniform vec2 srcResolution;
 
 in vec2 vUV;
-layout (location = 0) out vec3 downsample;
+
+out vec3 downsample;
 
 void main()
 {
@@ -62,4 +63,5 @@ void main()
     downsample += (a+c+g+i)*0.03125;
     downsample += (b+d+f+h)*0.0625;
     downsample += (j+k+l+m)*0.125;
+
 }

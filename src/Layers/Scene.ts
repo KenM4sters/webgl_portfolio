@@ -13,8 +13,6 @@ import { PhysicalMaterial } from "../Material";
 import GUI from "lil-gui";
 import Input from "../Input";
 
-// Shaders
-
 
 export default class Scene extends RenderLayer
 {
@@ -121,7 +119,7 @@ export default class Scene extends RenderLayer
         Gui.add(light1.transforms.Translation, '2', -100.0, 100.0, 0.01).name("Light1|PosZ").onChange(() => {
             light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
         })
-        Gui.add(light1, 'intensity', -10.0, 10.0, 0.01).name("Light1|Intensity");
+        Gui.add(light1, 'intensity', 0.0, 20.0, 0.01).name("Light1|Intensity");
         Gui.add(light1.color, '0', -1.0, 1.0, 0.01).name("Light1|ColorR");
         Gui.add(light1.color, '1', -1.0, 1.0, 0.01).name("Light1|ColorG");
         Gui.add(light1.color, '2', -1.0, 1.0, 0.01).name("Light1|ColorB");

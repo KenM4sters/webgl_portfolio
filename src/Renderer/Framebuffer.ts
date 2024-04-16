@@ -11,9 +11,11 @@ import { Texture2D, ImageConfig } from "./Texture";
  */
 export default class Framebuffer 
 {
-    constructor(targetTexConfig : ImageConfig) {
-        this.colorTexture = Texture2D.Create(targetTexConfig, "scene_tex");
-        this.Resize();
+    constructor(starter : ImageConfig | Texture2D, genRenderBuffer : boolean = true) {
+        if(starter instanceof Texture2D) this.colorTexture = starter;
+        else this.colorTexture = Texture2D.Create(starter, "scene_tex");
+
+        this.Resize(genRenderBuffer);
     }
 
     public FBO : Id<WebGLFramebuffer | null> = {val: null};
@@ -25,22 +27,25 @@ export default class Framebuffer
     GetRBO() : WebGLRenderbuffer { return this.RBO; }
     GetColorTexture() : Texture2D { return this.colorTexture; }
 
-    Resize() 
+    Resize(genRenderBuffer : boolean) 
     {
         // Create a new framebuffer with an empty texture to insert data into.
         this.FBO = {val: RenderCommand.CreateFramebuffer()};
         RenderCommand.BindFramebuffer(this.FBO);
         RenderCommand.SetFramebufferColorAttachment(this.colorTexture.GetId());
 
-        // We also need a render buffer to store depth information that tells WebGL
+        // We may also need a render buffer to store depth information that tells WebGL
         // which pixels to clip when one is infront of the other, otherwise nothing will look 3D.
-        this.RBO = {val: RenderCommand.CreateRenderbuffer()};
-        RenderCommand.BindRenderbuffer(this.RBO);
-        RenderCommand.SetRenderbufferDepthAttachment(this.RBO, this.FBO, this.colorTexture.GetConfig());
+        if(genRenderBuffer) 
+        {
+            this.RBO = {val: RenderCommand.CreateRenderbuffer()};
+            RenderCommand.BindRenderbuffer(this.RBO);
+            RenderCommand.SetRenderbufferDepthAttachment(this.RBO, this.FBO, this.colorTexture.GetConfig());
+        }
 
         // Cleanup.
         RenderCommand.UnbindFramebuffer();
-        RenderCommand.UnbindRenderbuffer();
+        if(genRenderBuffer) RenderCommand.UnbindRenderbuffer();
     }
 
 };

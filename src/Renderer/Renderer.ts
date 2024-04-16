@@ -54,11 +54,11 @@ export default class Renderer
         RenderCommand.EnableDepthTest(config.DepthTest);
         RenderCommand.ClearColorBufferBit(config.ClearColorBit);
         RenderCommand.ClearDepthBufferBit(config.ClearDepthBit);
-        RenderCommand.SetClearColor([0.1, 0.1, 0.1, 1.0]);
+        RenderCommand.SetClearColor([0.0, 0.0, 0.0, 1.0]);
 
 
         // Render the layer.
-        layer.Render(camera); 
+        layer.Render(camera);         
                 
         if(framebuffer?.FBO && config.CacheResults) Renderer.results[layer.name] = framebuffer?.GetColorTexture();
 
@@ -143,8 +143,9 @@ export default class Renderer
     // Remember - Order here matters: the renderer will iterate through this from [0] to [length-1].
     private static layers : Array<RenderLayer> = new Array<RenderLayer>();
 
-    // Currently not being used, but I think it could come in handy down the road.
-    private static results : {[key : string]: Texture2D} = {};
+    // This container holds all of the resultant textures from rendering that our layers have
+    // decided that want to make available for other layers to read from.
+    public static results : {[key : string]: Texture2D} = {};
 
     // Gui
     private Gui : GUI = new GUI();

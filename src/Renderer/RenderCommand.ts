@@ -156,6 +156,11 @@ export class RenderCommand
         else throw new Error("RenderCommand | Failed to use shader program! Id::Val is null!")
     }
 
+    public static SetVec2f(Id : Id<WebGLProgram | null>, name : string, val : glm.vec2) : void 
+    {        
+        if(Id.val) gl.uniform2f(gl.getUniformLocation(Id.val, name), val[0], val[1]); 
+        else throw new Error("RenderCommand | Failed to use shader program! Id::Val is null!")
+    }
     public static SetVec3f(Id : Id<WebGLProgram | null>, name : string, val : glm.vec3) : void 
     {
         if(Id.val) gl.uniform3f(gl.getUniformLocation(Id.val, name), val[0], val[1], val[2]); 
@@ -249,6 +254,11 @@ export class RenderCommand
             console.error('Framebuffer is not complete: ' + status.toString(16));
         }    
     }
+    public static DrawFramebuffer(attachments : number[]) : void 
+    {
+        gl.drawBuffers(attachments);
+    }
+
     public static DeleteFramebuffer(FBO : Id<WebGLFramebuffer | null>) 
     {
         if(!FBO) console.warn("RenderCommand | Attempting to delete a null framebuffer!");
@@ -301,6 +311,19 @@ export class RenderCommand
     public static EnableDepthTest(b : boolean) : void
     {
         b ? gl.enable(gl.DEPTH_TEST) : gl.disable(gl.DEPTH_TEST);
+    }
+
+    public static EnableAdditiveBlending(b : boolean) : void
+    {
+        b ? gl.enable(gl.BLEND) : gl.disable(gl.BLEND);
+    }
+    public static SetBlendFunc(a : number, b : number) : void
+    {
+        gl.blendFunc(a, b);
+    }
+    public static SetBlendEquation(e : number) : void
+    {
+        gl.blendEquation(e);
     }
     
     public static SetClearColor(color : glm.vec4) : void
