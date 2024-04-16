@@ -58,7 +58,7 @@ export default class Renderer
 
 
         // Render the layer.
-        layer.Render(camera);
+        layer.Render(camera); 
                 
         if(framebuffer?.FBO && config.CacheResults) Renderer.results[layer.name] = framebuffer?.GetColorTexture();
 
@@ -113,7 +113,9 @@ export default class Renderer
 
     public static DrawMesh(mesh : Mesh) : void {
 
-        var shader = AssetManager.materials[mesh.materialIndex].GetShader();
+        var shader = AssetManager.materials.get(mesh.materialKey)?.GetShader();
+        if(!shader) throw new Error("ASSET MANAGER | Failed to get asset!");
+        
         var VAO = mesh.geometry.vertexArray;
 
         // Bind the vertex array object and shader program.

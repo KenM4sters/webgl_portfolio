@@ -5,14 +5,14 @@ import RenderLayer from "../RenderLayer";
 import { RenderCommand } from "../Renderer/RenderCommand";
 import Renderer from "../Renderer/Renderer";
 import { TextureType } from "../Renderer/Texture";
-import AssetManager from "./AssetManager";
+import AssetManager, { AssetRegistry } from "./AssetManager";
 
 interface RenderControls 
 {
     Exposure : number;
 };
 
-export default class ScreenQuad extends RenderLayer 
+export default class ScreenPass extends RenderLayer 
 {
     constructor(name : string) 
     {
@@ -21,15 +21,17 @@ export default class ScreenQuad extends RenderLayer
 
     override Prepare(Gui : GUI): void 
     {
-        var screen_geo : Geometry = AssetManager.geometries["SQUARE"];
-        this.mesh = new Mesh(screen_geo, 1);
+        var screen_geo = AssetManager.geometries.get(AssetRegistry.GEO_SQUARE);
+        if(!screen_geo) throw new Error("ASSET MANAGER | Failed to get asset!");
+        this.mesh = new Mesh(screen_geo, AssetRegistry.MAT_HDR);
 
         Gui.add(this.renderControls, "Exposure", 0, 50, 0.1);
     }
 
     override Render(): void 
     {
-        var mat = AssetManager.materials[this.mesh.materialIndex];
+        var mat = AssetManager.materials.get(this.mesh.materialKey);
+        if(!mat) throw new Error("ASSET MANAGER | Failed to get asset!");
 
         // <-- Will be binding a texture here soon.
         RenderCommand.UseShader(mat.GetShader().GetId());

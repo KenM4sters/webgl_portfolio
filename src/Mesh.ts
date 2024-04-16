@@ -1,5 +1,6 @@
 import * as glm from "gl-matrix";
 import { Geometry } from "./Geometry";
+import { AssetRegistry } from "./Layers/AssetManager";
 
 
 export enum GeometryType 
@@ -28,18 +29,18 @@ export function SetInitialTransforms() : Transforms
 
 export class Mesh 
 {
-    constructor(geo : Geometry, matIndex : number) 
+    constructor(geo : Geometry, matKey : AssetRegistry) 
     {
         this.geometry = geo;
-        this.materialIndex = matIndex; 
+        this.materialKey = matKey; 
     }
 
     // Getters
     GetGeometry() : Geometry { return this.geometry; }
-    GetMaterialIndex() : number { return this.materialIndex; }
+    GetMaterialKey() : AssetRegistry { return this.materialKey; }
     GetTransforms() : Transforms { return this.transforms; }
 
-    public materialIndex : number = 0;
+    public materialKey : AssetRegistry;
     public geometry : Geometry;
     public transforms : Transforms = SetInitialTransforms();
  

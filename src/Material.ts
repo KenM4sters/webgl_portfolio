@@ -32,5 +32,15 @@ export class PhysicalMaterial extends Material
     public Metallic   : number   | Texture2D = 0.3; 
     public Roughness  : number   | Texture2D = 0.8; 
     public AO         : number   | Texture2D = 0.2; 
+};
 
+
+// This is literally just a shader (for now at least), but I wanted to keep the same convention of tying shaders
+// with materials.
+export class RenderPassMaterial extends Material
+{
+    constructor(s : Shader) 
+    {
+        super(s);
+    }
 };

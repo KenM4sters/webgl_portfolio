@@ -1,9 +1,9 @@
 import App from "./App.ts"
 import Scene from "./Layers/Scene.ts";
 import PerspectiveCamera from "./Camera/PerspectiveCamera.ts"
-import ScreenQuad from "./Layers/ScreenQuad.ts";
 import AssetManager from "./Layers/AssetManager.ts";
 import Input from "./Input.ts";
+import ScreenPass from "./Layers/ScreenPass.ts";
 
 var lastFrame : number = performance.now();
 
@@ -52,7 +52,7 @@ export class Animus extends App
 
     private camera     : PerspectiveCamera  = new PerspectiveCamera([0.0, 3.0, 20.0]);
     private scene      : Scene              = new Scene("Scene", this.camera);
-    private screenQuad : ScreenQuad         = new ScreenQuad("ScreenQuad");
+    private screenQuad : ScreenPass          = new ScreenPass("ScreenPass");
 };
 
 

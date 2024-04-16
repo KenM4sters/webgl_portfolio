@@ -8,7 +8,7 @@ import Framebuffer from "../Renderer/Framebuffer";
 import { RenderCommand } from "../Renderer/RenderCommand";
 import Renderer from "../Renderer/Renderer";
 import { ImageConfig, Texture2D } from "../Renderer/Texture";
-import AssetManager from "./AssetManager";
+import AssetManager, { AssetRegistry } from "./AssetManager";
 import { PhysicalMaterial } from "../Material";
 import GUI from "lil-gui";
 import Input from "../Input";
@@ -26,15 +26,17 @@ export default class Scene extends RenderLayer
     override Prepare(Gui : GUI): void 
     {
         // Mesh 1
-        var geo1 = AssetManager.geometries["CUBE"];
-        var mesh1 = new Mesh(geo1, 0);
+        var geo1 = AssetManager.geometries.get(AssetRegistry.GEO_CUBE)
+        if(!geo1) throw new Error("ASSET MANAGER | Failed to get asset!");
+        var mesh1 = new Mesh(geo1, AssetRegistry.MAT_FLOOR);
         mesh1.transforms.Scale = glm.vec3.fromValues(1.0, 1.66, 1.0);
         mesh1.transforms.Translation = glm.vec3.fromValues(-1.0, 0.55, 0.0);
         mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
         this.Push(mesh1);
         // Mesh 2
-        var geo2 = AssetManager.geometries["CUBE"];
-        var mesh2 = new Mesh(geo2, 0);
+        var geo2 = AssetManager.geometries.get(AssetRegistry.GEO_CUBE);
+        if(!geo2) throw new Error("ASSET MANAGER | Failed to get asset!");
+        var mesh2 = new Mesh(geo2, AssetRegistry.MAT_FLOOR);
         mesh2.transforms.Scale = glm.vec3.fromValues(100.0, 0.1, 100.0);
         mesh2.transforms.Translation = glm.vec3.fromValues(0.0, 0.0, 0.0);
         mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
@@ -43,6 +45,7 @@ export default class Scene extends RenderLayer
         // Light 1
         var light1 = new PointLight(glm.vec3.fromValues(1.0, 1.0, 1.0), 1.0);
         light1.intensity = 1.9;
+        light1.color = glm.vec3.fromValues(0.07, 0.25, 0.38);
         light1.transforms.Translation = glm.vec3.fromValues(1.0, 2.0, 2.0);
         light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
         this.Push(light1);
@@ -131,7 +134,7 @@ export default class Scene extends RenderLayer
             // May end up adding all objects (lights, materials etc) into this.
             if(child instanceof Mesh) 
             {
-                let mat = AssetManager.materials[child.materialIndex];
+                let mat = AssetManager.materials.get(child.materialKey);
 
                 if(mat instanceof PhysicalMaterial) 
                 {

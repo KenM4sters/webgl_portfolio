@@ -247,7 +247,7 @@ export class RenderCommand
         const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
         if (status !== gl.FRAMEBUFFER_COMPLETE) {
             console.error('Framebuffer is not complete: ' + status.toString(16));
-        }       
+        }    
     }
     public static DeleteFramebuffer(FBO : Id<WebGLFramebuffer | null>) 
     {
