@@ -11,7 +11,8 @@ import GUI from "lil-gui";
 
 export default class Renderer 
 {
-    constructor() {
+    constructor() 
+    {
         this.pixels = new Uint8Array(window.innerWidth * window.innerHeight * 4);
     }
 

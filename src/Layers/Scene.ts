@@ -26,7 +26,7 @@ export default class Scene extends RenderLayer
         // Mesh 1
         var geo1 = AssetManager.geometries.get(AssetRegistry.GEO_CUBE)
         if(!geo1) throw new Error("ASSET MANAGER | Failed to get asset!");
-        var mesh1 = new Mesh(geo1, AssetRegistry.MAT_FLOOR);
+        var mesh1 = new Mesh(geo1, AssetRegistry.MAT_PBR);
         mesh1.transforms.Scale = glm.vec3.fromValues(1.0, 1.66, 1.0);
         mesh1.transforms.Translation = glm.vec3.fromValues(-1.0, 0.55, 0.0);
         mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
@@ -34,7 +34,7 @@ export default class Scene extends RenderLayer
         // Mesh 2
         var geo2 = AssetManager.geometries.get(AssetRegistry.GEO_CUBE);
         if(!geo2) throw new Error("ASSET MANAGER | Failed to get asset!");
-        var mesh2 = new Mesh(geo2, AssetRegistry.MAT_FLOOR);
+        var mesh2 = new Mesh(geo2, AssetRegistry.MAT_PHONG);
         mesh2.transforms.Scale = glm.vec3.fromValues(100.0, 0.1, 100.0);
         mesh2.transforms.Translation = glm.vec3.fromValues(0.0, 0.0, 0.0);
         mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
@@ -108,6 +108,14 @@ export default class Scene extends RenderLayer
         Gui.add(mesh2.transforms.Scale, '2', -100.0, 100.0, 0.01).name("Mesh2|ScaleZ").onChange(() => {
             mesh2.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Scale);
         })
+
+        // Material
+        var cube_mat = AssetManager.materials.get(mesh1.materialKey);
+        var floor_mat = AssetManager.materials.get(mesh2.materialKey);
+        if(!cube_mat) throw new Error("Asset Manager | Failed to find asset!");
+        if(!floor_mat) throw new Error("Asset Manager | Failed to find asset!");
+        Gui.add(cube_mat.emission, 'val',  0.0, 1.0, 0.01).name("Mesh1|Emission");
+        Gui.add(floor_mat.emission, 'val',  0.0, 1.0, 0.01).name("Mesh2|Emission");
         
         // Lights
         Gui.add(light1.transforms.Translation, '0', -100.0, 100.0, 0.01).name("Light1|PosX").onChange(() => {
@@ -154,6 +162,7 @@ export default class Scene extends RenderLayer
                     mat.Metallic instanceof Texture2D ? console.log("texture mat") : RenderCommand.SetFloat(Id, "material.Metallic", mat.Metallic);
                     mat.Roughness instanceof Texture2D ? console.log("texture mat") : RenderCommand.SetFloat(Id, "material.Roughness", mat.Roughness);
                     mat.AO instanceof Texture2D ? console.log("texture mat") : RenderCommand.SetFloat(Id, "material.AO", mat.AO);
+                    RenderCommand.SetFloat(Id, "material.Emission", mat.emission.val);
 
                     for(const light of this.lights) 
                     {

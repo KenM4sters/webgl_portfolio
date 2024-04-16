@@ -1,10 +1,9 @@
 import * as glm from "gl-matrix";
-
-// Base class for indvidual material types that a scene object can associate with.
-// Dervied materials can behave quite differently, so I've kept this base class very barebones
 import { Shader } from "./Renderer/Shader";
 import { Texture2D } from "./Renderer/Texture";
 
+// Base class for indvidual material types that a scene object can associate with.
+// Dervied materials can behave quite differently, so I've kept this base class very barebones
 // with just the shader that will definitely be needed for any useful material.
 export abstract class Material 
 {
@@ -18,6 +17,7 @@ export abstract class Material
     SetShader(s : Shader) : void { this.shader = s; }
 
     protected shader : Shader;
+    public emission : {val: number} = {val: 0};
 };
 
 export class PhysicalMaterial extends Material 
