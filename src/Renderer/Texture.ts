@@ -105,6 +105,21 @@ export class Texture2D extends Texture
     {
         return new Texture2D(config, name, data);
     }
+    static CreateDefault() : Texture2D 
+    {
+        var config : ImageConfig = 
+        {
+            TargetType: gl.TEXTURE_2D,
+            MipMapLevel: 0,
+            NChannels: gl.RGB,
+            Width: 200,
+            Height: 200,
+            Format: gl.RGB,
+            DataType: gl.UNSIGNED_BYTE
+        };
+
+        return new Texture2D(config, "DefaultTexture", new Uint8Array(200*200*3).fill(1.0));
+    }
 };
 
 

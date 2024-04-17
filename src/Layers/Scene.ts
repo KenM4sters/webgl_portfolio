@@ -7,7 +7,7 @@ import RenderLayer from "../RenderLayer";
 import Framebuffer from "../Renderer/Framebuffer";
 import { RenderCommand } from "../Renderer/RenderCommand";
 import Renderer from "../Renderer/Renderer";
-import { ImageConfig, Texture2D } from "../Renderer/Texture";
+import { ImageConfig, Texture2D, TextureType } from "../Renderer/Texture";
 import AssetManager, { AssetRegistry } from "./AssetManager";
 import { PhysicalMaterial } from "../Material";
 import GUI from "lil-gui";
@@ -34,7 +34,7 @@ export default class Scene extends RenderLayer
         // Mesh 2
         var geo2 = AssetManager.geometries.get(AssetRegistry.GEO_CUBE);
         if(!geo2) throw new Error("ASSET MANAGER | Failed to get asset!");
-        var mesh2 = new Mesh(geo2, AssetRegistry.MAT_PHONG);
+        var mesh2 = new Mesh(geo2, AssetRegistry.MAT_PBR);
         mesh2.transforms.Scale = glm.vec3.fromValues(100.0, 0.1, 100.0);
         mesh2.transforms.Translation = glm.vec3.fromValues(0.0, 0.0, 0.0);
         mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
@@ -116,6 +116,8 @@ export default class Scene extends RenderLayer
         if(!floor_mat) throw new Error("Asset Manager | Failed to find asset!");
         Gui.add(cube_mat.emission, 'val',  0.0, 1.0, 0.01).name("Mesh1|Emission");
         Gui.add(floor_mat.emission, 'val',  0.0, 1.0, 0.01).name("Mesh2|Emission");
+        Gui.add(cube_mat.isUsingTextures, 'val').name("Mesh1|isUsingTextures");
+        Gui.add(floor_mat.isUsingTextures, 'val').name("Mesh2|isUsingTextures");
         
         // Lights
         Gui.add(light1.transforms.Translation, '0', -100.0, 100.0, 0.01).name("Light1|PosX").onChange(() => {
@@ -151,31 +153,50 @@ export default class Scene extends RenderLayer
                     child.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), child.transforms.ModelMatrix, child.transforms.Scale);
                     child.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), child.transforms.ModelMatrix, child.transforms.Translation);
 
-    
+                    // Clear up any texture units that we may need in case they weren't from the pervious render pass.
+                    RenderCommand.UnBindTexture(TextureType.Tex2D, 0);
+                    RenderCommand.UnBindTexture(TextureType.Tex2D, 1);
+                    RenderCommand.UnBindTexture(TextureType.Tex2D, 2);
+                    RenderCommand.UnBindTexture(TextureType.Tex2D, 3);
+
+                    // Important uniforms for transforming coordinates between spaces.
                     RenderCommand.UseShader(Id);
                     RenderCommand.SetMat4f(Id, "model", child.transforms.ModelMatrix);
                     RenderCommand.SetMat4f(Id, "view", camera.GetViewMatrix());
                     RenderCommand.SetMat4f(Id, "projection", camera.GetProjectionMatrix());
                     RenderCommand.SetVec3f(Id, "camera.Position", camera.position);
-                    
-                    mat.Albedo instanceof Texture2D ? console.log("texture mat") : RenderCommand.SetVec3f(Id, "material.Albedo", mat.Albedo);
-                    mat.Metallic instanceof Texture2D ? console.log("texture mat") : RenderCommand.SetFloat(Id, "material.Metallic", mat.Metallic);
-                    mat.Roughness instanceof Texture2D ? console.log("texture mat") : RenderCommand.SetFloat(Id, "material.Roughness", mat.Roughness);
-                    mat.AO instanceof Texture2D ? console.log("texture mat") : RenderCommand.SetFloat(Id, "material.AO", mat.AO);
-                    RenderCommand.SetFloat(Id, "material.Emission", mat.emission.val);
+                    RenderCommand.SetBool(Id, "IsUsingTextures", mat.isUsingTextures.val);
 
-                    for(const light of this.lights) 
+                    // Material Props - Could be either a texture or a float/array, so we need to check each property and assign it the correct unifrom.
+                    if(mat.isUsingTextures.val) {RenderCommand.SetInt(Id, "material.Albedo", 0); RenderCommand.BindTexture(mat.Albedo.tex.GetId(), TextureType.Tex2D, 0)}
+                    else RenderCommand.SetVec3f(Id, "rawMaterial.Albedo", mat.Albedo.val as glm.vec3);
+                    if(mat.isUsingTextures.val) {RenderCommand.SetInt(Id, "material.Metallic", 1); RenderCommand.BindTexture(mat.Metallic.tex.GetId(), TextureType.Tex2D, 1)}
+                    else RenderCommand.SetFloat(Id, "rawMaterial.Metallic", mat.Metallic.val as number);
+                    if(mat.isUsingTextures.val) {RenderCommand.SetInt(Id, "material.Roughness", 2); RenderCommand.BindTexture(mat.Roughness.tex.GetId(), TextureType.Tex2D, 2)}
+                    else RenderCommand.SetFloat(Id, "rawMaterial.Roughness", mat.Roughness.val as number);
+                    if(mat.isUsingTextures.val) {RenderCommand.SetInt(Id, "material.AO", 3); RenderCommand.BindTexture(mat.AO.tex.GetId(), TextureType.Tex2D, 3)}
+                    else RenderCommand.SetFloat(Id, "rawMaterial.AO", mat.AO.val as number); 
+                    
+                    RenderCommand.SetFloat(Id, "rawMaterial.Emission", mat.emission.val); // Only really makes sense for a raw material.
+
+                    // Loop through each light and set their uniform data.
+                    for(const light of this.lights)
                     {
                         var light_index : number = 1;
                         RenderCommand.SetVec3f(Id, "light" + light_index + ".Position", light.transforms.Translation);
                         RenderCommand.SetVec3f(Id, "light" + light_index + ".Color", light.color);
                         RenderCommand.SetFloat(Id, "light" + light_index + ".Intensity", light.intensity);
-                        // console.log("light" + light_index + ".Position");
                         light_index++;
                     }
                 }
                 
+                // This function handles calling the appropriate draw call based on whether we're using indices or not.
                 Renderer.DrawMesh(child);
+                // Clear up the textures that were used for our materials.
+                RenderCommand.UnBindTexture(TextureType.Tex2D, 0);
+                RenderCommand.UnBindTexture(TextureType.Tex2D, 1);
+                RenderCommand.UnBindTexture(TextureType.Tex2D, 2);
+                RenderCommand.UnBindTexture(TextureType.Tex2D, 3);
             } 
         })
     }

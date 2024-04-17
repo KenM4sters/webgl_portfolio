@@ -39,9 +39,9 @@ export default class AssetManager
 
         // Materials
         var PHONG_MAT = new PhysicalMaterial(PHONG_SHADER);
-        PHONG_MAT.Albedo = glm.vec3.fromValues(1.0, 1.0, 1.0);
+        PHONG_MAT.Albedo.val = glm.vec3.fromValues(1.0, 1.0, 1.0);
         var PBR_MAT = new PhysicalMaterial(PBR_SHADER);
-        PBR_MAT.Albedo = glm.vec3.fromValues(1.0, 0.8, 0.6);
+        PBR_MAT.Albedo.val = glm.vec3.fromValues(1.0, 0.8, 0.6);
         AssetManager.materials.set(AssetRegistry.MAT_PHONG, PHONG_MAT);
         AssetManager.materials.set(AssetRegistry.MAT_PBR, PBR_MAT);
         AssetManager.materials.set(AssetRegistry.MAT_HDR, new RenderPassMaterial(HDR_SHADER));

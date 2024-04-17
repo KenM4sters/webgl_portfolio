@@ -13,7 +13,7 @@ struct Light
     float Intensity;
 };
 
-struct Material 
+struct RawMaterial 
 {
     vec3 Albedo;
     float Metallic;
@@ -21,17 +21,48 @@ struct Material
     float AO;
     float Emission;
 };
+struct Material 
+{
+    sampler2D Albedo;
+    sampler2D Metallic;
+    sampler2D Roughness;
+    sampler2D AO;
+};
 
 out vec4 FragColor;
 
 in vec3 model_pos;
 in vec3 vNormal;
+in vec2 vUV;
 
 uniform Camera camera;
 uniform Material material;
+uniform RawMaterial rawMaterial; 
+uniform bool IsUsingTextures;
 uniform Light light1;
 
 void main() {
+
+    vec3 albedoMat;
+    float metallicMat;
+    float roughnessMat;
+    float aoMat;
+    float emissionMat;
+
+    if(IsUsingTextures) 
+    {
+        albedoMat = texture(material.Albedo, vUV).rgb;
+        metallicMat = texture(material.Metallic, vUV).r;
+        roughnessMat = texture(material.Roughness, vUV).r;
+        aoMat = texture(material.AO, vUV).r;
+    } else 
+    {
+        albedoMat = rawMaterial.Albedo;
+        metallicMat = rawMaterial.Metallic;
+        roughnessMat = rawMaterial.Roughness;
+        aoMat = rawMaterial.AO;
+        emissionMat = rawMaterial.Emission;
+    }
 
     vec3 P = model_pos;
     vec3 N = normalize(vNormal);
@@ -46,9 +77,9 @@ void main() {
     float specular = pow(max(dot(reflectedDir, cameraDir), 0.0), 32.0);
     vec3 specularShading = specular * light1.Color * specularIntensity;
 
-    vec3 result = (diffuseShading + specularShading) * material.Albedo;
+    vec3 result = (diffuseShading + specularShading) * albedoMat;
 
-    result += material.Emission;
+    result += emissionMat;
 
     FragColor = vec4(result, 1.0);
 }

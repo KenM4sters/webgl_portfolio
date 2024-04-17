@@ -155,6 +155,11 @@ export class RenderCommand
         if(Id.val) gl.uniform1f(gl.getUniformLocation(Id.val, name), val); 
         else throw new Error("RenderCommand | Failed to use shader program! Id::Val is null!")
     }
+    public static SetBool(Id : Id<WebGLProgram | null>, name : string, val : boolean) : void 
+    {
+        if(Id.val) gl.uniform1i(gl.getUniformLocation(Id.val, name), val ? 1 : 0); 
+        else throw new Error("RenderCommand | Failed to use shader program! Id::Val is null!")
+    }
 
     public static SetVec2f(Id : Id<WebGLProgram | null>, name : string, val : glm.vec2) : void 
     {        
