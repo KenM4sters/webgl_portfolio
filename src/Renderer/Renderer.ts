@@ -8,6 +8,7 @@ import { Mesh } from "../Mesh";
 import AssetManager from "../Layers/AssetManager";
 import PerspectiveCamera from "../Camera/PerspectiveCamera";
 import GUI from "lil-gui";
+import { Geometry, GeometryDrawFunctionTypes } from "../Geometry";
 
 export default class Renderer 
 {
@@ -55,7 +56,7 @@ export default class Renderer
         RenderCommand.EnableDepthTest(config.DepthTest);
         RenderCommand.ClearColorBufferBit(config.ClearColorBit);
         RenderCommand.ClearDepthBufferBit(config.ClearDepthBit);
-        RenderCommand.SetClearColor([0.0, 0.0, 0.0, 1.0]);
+        RenderCommand.SetClearColor([0.0, 0.01, 0.04, 1.0]);
 
 
         // Render the layer.
@@ -89,29 +90,6 @@ export default class Renderer
     // Helper functions that take the load off the RenderCommand.
     //============================================================
 
-    // Renders the VAO to the target framebuffer of the render layer that is currently active.
-    public static DrawVAO(VAO : VertexArray, shader : Shader) : void {
-        // Bind the vertex array object and shader program.
-        RenderCommand.BindVertexArray(VAO.GetId());
-        RenderCommand.UseShader(shader.GetId());
-
-        // Only call DrawIndexed() if the index buffer isn't null.
-        var EBO = VAO.GetIndexBuffer();
-        if(EBO && IndexBuffer.Id) 
-        {
-            // RenderCommand.BindBuffer(IndexBuffer.Id, BufferType.Index)
-            RenderCommand.DrawIndexed(EBO.GetUniqueSize() / EBO.GetUniqueIndices().BYTES_PER_ELEMENT , EBO.GetUniqueOffset());
-        } else {
-            RenderCommand.Draw(VAO.GetVertexBuffer().GetVerticesCount());
-        }
-
-        // Cleanup.
-        RenderCommand.UnbindVertexArray();
-        RenderCommand.UnbindBuffer(BufferType.Index);
-        RenderCommand.ReleaseShader();
-
-    }
-
     public static DrawMesh(mesh : Mesh) : void {
 
         var shader = AssetManager.materials.get(mesh.materialKey)?.GetShader();
@@ -125,13 +103,12 @@ export default class Renderer
 
         // Only call DrawIndexed() if the index buffer isn't null.
         var EBO = VAO.GetIndexBuffer();
-        if(EBO && IndexBuffer.Id) 
+
+        switch(mesh.geometry.drawFunction.type) 
         {
-            // RenderCommand.BindBuffer(IndexBuffer.Id, BufferType.Index)
-            RenderCommand.DrawIndexed(EBO.GetUniqueSize() / EBO.GetUniqueIndices().BYTES_PER_ELEMENT , EBO.GetUniqueOffset());
-        } else {
-            RenderCommand.Draw(mesh.geometry.vertexArray.GetVertexBuffer().GetVerticesCount());
-        }
+            case GeometryDrawFunctionTypes.DRAW_ARRAYS: RenderCommand.Draw(mesh.geometry.drawFunction.shape, VAO.GetVertexBuffer().GetVerticesCount()); break;
+            case GeometryDrawFunctionTypes.DRAW_ARRAYS_INDEXED: if(EBO) RenderCommand.DrawIndexed(mesh.geometry.drawFunction.shape, EBO.GetUniqueSize() / EBO.GetUniqueIndices().BYTES_PER_ELEMENT , EBO.GetUniqueOffset()); break; 
+        };
 
         // Cleanup.
         RenderCommand.UnbindVertexArray();
@@ -145,7 +122,7 @@ export default class Renderer
     private static layers : Array<RenderLayer> = new Array<RenderLayer>();
 
     // This container holds all of the resultant textures from rendering that our layers have
-    // decided that want to make available for other layers to read from.
+    // decided they want to make available for other layers to read from.
     public static results : {[key : string]: Texture2D} = {};
 
     // Gui

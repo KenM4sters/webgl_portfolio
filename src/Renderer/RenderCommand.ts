@@ -4,6 +4,7 @@ import { VertexBuffer, IndexBuffer, Id } from "./Buffer.ts";
 import { TextureType, ImageConfig, ImageChannels, ConvertTextureTypeToNative, ConvertImageChannelsToNative, TexData } from "./Texture.ts";
 import { ConvertBitsToNative, FramebufferBits } from "../RenderLayer.ts";
 import { ConvertShaderTypeToNative, GetShaderDataType } from "./Shader.ts";
+import { ConvertShapeToNativeShape, GeometryDrawFunctionShapes } from "../Geometry.ts";
 
 export enum BufferType 
 {
@@ -122,6 +123,10 @@ export class RenderCommand
     public static SetVertexArrayAttribute(layoutLoc : number, count : number, type : number, stride : number, offset : number) : void 
     {
         gl.vertexAttribPointer(layoutLoc, count, type, false, stride, offset);
+    }
+    public static SetVertexArrayDivisor(layoutLoc : number, freq : number) : void 
+    {
+        gl.vertexAttribDivisor(layoutLoc, freq);
     }
 
 
@@ -346,13 +351,17 @@ export class RenderCommand
     }
 
     // Draw Commands
-    public static Draw(nVertices : number) : void 
+    public static Draw(shape : GeometryDrawFunctionShapes, nVertices : number) : void 
     {
-        gl.drawArrays(gl.TRIANGLES, 0, nVertices);
+        switch(shape) 
+        {
+            case GeometryDrawFunctionShapes.TRIANGLES: gl.drawArrays(ConvertShapeToNativeShape(shape), 0, nVertices); break; 
+            case GeometryDrawFunctionShapes.TRIANGLES_STRIP: gl.drawArrays(ConvertShapeToNativeShape(shape), 0, nVertices); break; 
+        }
     }
-    public static DrawIndexed(count : number, offset : number) : void
+    public static DrawIndexed(shape : GeometryDrawFunctionShapes, count : number, offset : number) : void
     {
-        gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, offset);
+        gl.drawElements(ConvertShapeToNativeShape(shape), count, gl.UNSIGNED_SHORT, offset);
     }
 
 };

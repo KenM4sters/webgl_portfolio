@@ -12,6 +12,8 @@ import AssetManager, { AssetRegistry } from "./AssetManager";
 import { PhysicalMaterial } from "../Material";
 import GUI from "lil-gui";
 import Input from "../Input";
+import { GeometryDrawFunctionShapes, GeometryDrawFunctionTypes, SphereGeometry } from "../Geometry";
+import { Particles } from "../Renderer/Systems/Particles";
 
 
 export default class Scene extends RenderLayer
@@ -26,19 +28,28 @@ export default class Scene extends RenderLayer
         // Mesh 1
         var geo1 = AssetManager.geometries.get(AssetRegistry.GEO_CUBE)
         if(!geo1) throw new Error("ASSET MANAGER | Failed to get asset!");
+        geo1.drawFunction = {type: GeometryDrawFunctionTypes.DRAW_ARRAYS, shape: GeometryDrawFunctionShapes.TRIANGLES};
         var mesh1 = new Mesh(geo1, AssetRegistry.MAT_CUBE);
         mesh1.transforms.Scale = glm.vec3.fromValues(1.0, 1.66, 1.0);
         mesh1.transforms.Translation = glm.vec3.fromValues(-1.0, 0.55, 0.0);
         mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
         this.Push(mesh1);
+        
         // Mesh 2
         var geo2 = AssetManager.geometries.get(AssetRegistry.GEO_CUBE);
         if(!geo2) throw new Error("ASSET MANAGER | Failed to get asset!");
+        geo2.drawFunction = {type: GeometryDrawFunctionTypes.DRAW_ARRAYS, shape: GeometryDrawFunctionShapes.TRIANGLES};
         var mesh2 = new Mesh(geo2, AssetRegistry.MAT_FLOOR);
         mesh2.transforms.Scale = glm.vec3.fromValues(100.0, 0.1, 100.0);
         mesh2.transforms.Translation = glm.vec3.fromValues(0.0, 0.0, 0.0);
         mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
         this.Push(mesh2);
+
+        // Spere
+        var geo3 = new SphereGeometry(10, 50, 50);
+        geo3.drawFunction = {type: GeometryDrawFunctionTypes.DRAW_ARRAYS, shape: GeometryDrawFunctionShapes.TRIANGLES_STRIP};
+        var mesh3 = new Mesh(geo3, AssetRegistry.MAT_SKY);
+        this.Push(mesh3);
 
         // Light 1
         var light1 = new PointLight(glm.vec3.fromValues(1.0, 1.0, 1.0), 1.0);
@@ -48,7 +59,21 @@ export default class Scene extends RenderLayer
         light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
         this.Push(light1);
 
-        
+        // Render Systems
+        const w : number = 100;
+        const h : number = 100;
+        var positionData = new Float32Array(100*100*3);
+
+        for(let x = 0; x < w; x++) 
+        {
+            for(let y = 0; y < h; y++) 
+            {
+                
+            }
+        }
+
+        this.particles = new Particles(positionData);
+
         // Since we'll be rendering our scene to an off-screen render buffer, and storing the results
         // in a texture to be used for the "SreenQuad" render layer, we need to define this.renderTarget
         // as our own custom framebuffer.
@@ -67,8 +92,7 @@ export default class Scene extends RenderLayer
         this.renderConfig.CacheResults = true; // When set to true, this stores the results in the renderer for free access by all layers.
 
  
-        // GUI Parameters.
-
+        // GUI Parameters
         // Cube
         const CubeFolder = Gui.addFolder('Cube');
         var cube_mat = AssetManager.materials.get(mesh1.materialKey);
@@ -264,5 +288,6 @@ export default class Scene extends RenderLayer
 
     public meshes : Array<Mesh> = new Array<Mesh>();
     public lights : Array<Light> = new Array<Light>();
+    public particles !: Particles;
     public camera : PerspectiveCamera;
 };
