@@ -17,8 +17,8 @@ export enum AssetRegistry
 {
     GEO_SQUARE = "GEO_SQUARE",
     GEO_CUBE = "GEO_CUBE",
-    MAT_PHONG = "MAT_PHONG",
-    MAT_PBR = "MAT_PBR",
+    MAT_CUBE = "MAT_CUBE",
+    MAT_FLOOR = "MAT_FLOOR",
     MAT_HDR = "MAT_HDR",
     MAT_DOWNSAMPLE = "MAT_DOWNSAMPLE",
     MAT_UPSAMPLE = "MAT_UPSAMPLE"    
@@ -38,12 +38,14 @@ export default class AssetManager
         var UPSAMPLE_SHADER = Shader.Create(fullscreenQuadVertSource, upsampleFragSource, "HDR_SHADER");
 
         // Materials
-        var PHONG_MAT = new PhysicalMaterial(PHONG_SHADER);
-        PHONG_MAT.Albedo.val = glm.vec3.fromValues(1.0, 1.0, 1.0);
-        var PBR_MAT = new PhysicalMaterial(PBR_SHADER);
-        PBR_MAT.Albedo.val = glm.vec3.fromValues(1.0, 0.8, 0.6);
-        AssetManager.materials.set(AssetRegistry.MAT_PHONG, PHONG_MAT);
-        AssetManager.materials.set(AssetRegistry.MAT_PBR, PBR_MAT);
+        var CUBE_MAT = new PhysicalMaterial(PBR_SHADER);
+        CUBE_MAT.Albedo.val = glm.vec3.fromValues(1.0, 0.8, 0.6);
+
+        var FLOOR_MAT = new PhysicalMaterial(PBR_SHADER);
+        FLOOR_MAT.Albedo.val = glm.vec3.fromValues(1.0, 0.8, 0.6);
+
+        AssetManager.materials.set(AssetRegistry.MAT_CUBE, CUBE_MAT);
+        AssetManager.materials.set(AssetRegistry.MAT_FLOOR, FLOOR_MAT);
         AssetManager.materials.set(AssetRegistry.MAT_HDR, new RenderPassMaterial(HDR_SHADER));
         AssetManager.materials.set(AssetRegistry.MAT_DOWNSAMPLE, new RenderPassMaterial(DOWNSAMPLE_SHADER));
         AssetManager.materials.set(AssetRegistry.MAT_UPSAMPLE, new RenderPassMaterial(UPSAMPLE_SHADER));

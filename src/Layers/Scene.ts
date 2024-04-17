@@ -26,7 +26,7 @@ export default class Scene extends RenderLayer
         // Mesh 1
         var geo1 = AssetManager.geometries.get(AssetRegistry.GEO_CUBE)
         if(!geo1) throw new Error("ASSET MANAGER | Failed to get asset!");
-        var mesh1 = new Mesh(geo1, AssetRegistry.MAT_PBR);
+        var mesh1 = new Mesh(geo1, AssetRegistry.MAT_CUBE);
         mesh1.transforms.Scale = glm.vec3.fromValues(1.0, 1.66, 1.0);
         mesh1.transforms.Translation = glm.vec3.fromValues(-1.0, 0.55, 0.0);
         mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
@@ -34,7 +34,7 @@ export default class Scene extends RenderLayer
         // Mesh 2
         var geo2 = AssetManager.geometries.get(AssetRegistry.GEO_CUBE);
         if(!geo2) throw new Error("ASSET MANAGER | Failed to get asset!");
-        var mesh2 = new Mesh(geo2, AssetRegistry.MAT_PBR);
+        var mesh2 = new Mesh(geo2, AssetRegistry.MAT_FLOOR);
         mesh2.transforms.Scale = glm.vec3.fromValues(100.0, 0.1, 100.0);
         mesh2.transforms.Translation = glm.vec3.fromValues(0.0, 0.0, 0.0);
         mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
@@ -42,7 +42,7 @@ export default class Scene extends RenderLayer
 
         // Light 1
         var light1 = new PointLight(glm.vec3.fromValues(1.0, 1.0, 1.0), 1.0);
-        light1.intensity = 1.9;
+        light1.intensity = 20.0;
         light1.color = glm.vec3.fromValues(0.07, 0.25, 0.38);
         light1.transforms.Translation = glm.vec3.fromValues(1.0, 2.0, 2.0);
         light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
@@ -69,70 +69,84 @@ export default class Scene extends RenderLayer
  
         // GUI Parameters.
 
-        // Translate 
-        Gui.add(mesh1.transforms.Translation, '0', -100.0, 100.0, 0.01).name("Mesh1|PosX").onChange(() => {
-            mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
-        })
-        Gui.add(mesh1.transforms.Translation, '1', -100.0, 100.0, 0.01).name("Mesh1|PosY").onChange(() => {
-            mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
-        })
-        Gui.add(mesh1.transforms.Translation, '2', -100.0, 100.0, 0.01).name("Mesh1|PosZ").onChange(() => {
-            mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
-        })
-        Gui.add(mesh2.transforms.Translation, '0', -100.0, 100.0, 0.01).name("Mesh2|PosX").onChange(() => {
-            mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
-        })
-        Gui.add(mesh2.transforms.Translation, '1', -100.0, 100.0, 0.01).name("Mesh2|PosY").onChange(() => {
-            mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
-        })
-        Gui.add(mesh2.transforms.Translation, '2', -100.0, 100.0, 0.01).name("Mesh2|PosZ").onChange(() => {
-            mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
-        })
-
-        // Scale
-        Gui.add(mesh1.transforms.Scale, '0', -100.0, 100.0, 0.01).name("Mesh1|ScaleX").onChange(() => {
-            mesh1.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Scale);
-        })
-        Gui.add(mesh1.transforms.Scale, '1', -100.0, 100.0, 0.01).name("Mesh1|ScaleY").onChange(() => {
-            mesh1.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Scale);
-        })
-        Gui.add(mesh1.transforms.Scale, '2', -100.0, 100.0, 0.01).name("Mesh1|ScaleZ").onChange(() => {
-            mesh1.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Scale);
-        })
-        Gui.add(mesh2.transforms.Scale, '0', -100.0, 100.0, 0.01).name("Mesh2|ScaleX").onChange(() => {
-            mesh2.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Scale);
-        })
-        Gui.add(mesh2.transforms.Scale, '1', -100.0, 100.0, 0.01).name("Mesh2|ScaleY").onChange(() => {
-            mesh2.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Scale);
-        })
-        Gui.add(mesh2.transforms.Scale, '2', -100.0, 100.0, 0.01).name("Mesh2|ScaleZ").onChange(() => {
-            mesh2.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Scale);
-        })
-
-        // Material
+        // Cube
+        const CubeFolder = Gui.addFolder('Cube');
         var cube_mat = AssetManager.materials.get(mesh1.materialKey);
-        var floor_mat = AssetManager.materials.get(mesh2.materialKey);
         if(!cube_mat) throw new Error("Asset Manager | Failed to find asset!");
+        CubeFolder.add(mesh1.transforms.Translation, '0', -100.0, 100.0, 0.01).name("PosX").onChange(() => {
+            mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
+        })
+        CubeFolder.add(mesh1.transforms.Translation, '1', -100.0, 100.0, 0.01).name("PosY").onChange(() => {
+            mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
+        })
+        CubeFolder.add(mesh1.transforms.Translation, '2', -100.0, 100.0, 0.01).name("PosZ").onChange(() => {
+            mesh1.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Translation);
+        })
+        CubeFolder.add(mesh1.transforms.Scale, '0', -100.0, 100.0, 0.01).name("ScaleX").onChange(() => {
+            mesh1.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Scale);
+        })
+        CubeFolder.add(mesh1.transforms.Scale, '1', -100.0, 100.0, 0.01).name("ScaleY").onChange(() => {
+            mesh1.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Scale);
+        })
+        CubeFolder.add(mesh1.transforms.Scale, '2', -100.0, 100.0, 0.01).name("ScaleZ").onChange(() => {
+            mesh1.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh1.transforms.ModelMatrix, mesh1.transforms.Scale);
+        })
+        if(cube_mat instanceof PhysicalMaterial) 
+        {
+            CubeFolder.add(cube_mat.Metallic, 'val',  0.0, 1.0, 0.01).name("Metallic");
+            CubeFolder.add(cube_mat.Roughness, 'val',  0.0, 1.0, 0.01).name("Roughness");
+        }
+        CubeFolder.add(cube_mat.emission, 'val',  0.0, 1.0, 0.01).name("Emission");
+        CubeFolder.add(cube_mat.isUsingTextures, 'val').name("isUsingTextures");
+
+
+        // Floor 
+        const FloorFolder = Gui.addFolder('Floor');
+        var floor_mat = AssetManager.materials.get(mesh2.materialKey);
         if(!floor_mat) throw new Error("Asset Manager | Failed to find asset!");
-        Gui.add(cube_mat.emission, 'val',  0.0, 1.0, 0.01).name("Mesh1|Emission");
-        Gui.add(floor_mat.emission, 'val',  0.0, 1.0, 0.01).name("Mesh2|Emission");
-        Gui.add(cube_mat.isUsingTextures, 'val').name("Mesh1|isUsingTextures");
-        Gui.add(floor_mat.isUsingTextures, 'val').name("Mesh2|isUsingTextures");
+        FloorFolder.add(mesh2.transforms.Translation, '0', -100.0, 100.0, 0.01).name("PosX").onChange(() => {
+            mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
+        })
+        FloorFolder.add(mesh2.transforms.Translation, '1', -100.0, 100.0, 0.01).name("PosY").onChange(() => {
+            mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
+        })
+        FloorFolder.add(mesh2.transforms.Translation, '2', -100.0, 100.0, 0.01).name("PosZ").onChange(() => {
+            mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
+        })
+        FloorFolder.add(mesh2.transforms.Scale, '0', -100.0, 100.0, 0.01).name("ScaleX").onChange(() => {
+            mesh2.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Scale);
+        })
+        FloorFolder.add(mesh2.transforms.Scale, '1', -100.0, 100.0, 0.01).name("ScaleY").onChange(() => {
+            mesh2.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Scale);
+        })
+        FloorFolder.add(mesh2.transforms.Scale, '2', -100.0, 100.0, 0.01).name("ScaleZ").onChange(() => {
+            mesh2.transforms.ModelMatrix =  glm.mat4.scale(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Scale);
+        })
+        if(floor_mat instanceof PhysicalMaterial) 
+        {
+            FloorFolder.add(floor_mat.Metallic, 'val',  0.0, 1.0, 0.01).name("Metallic");
+            FloorFolder.add(floor_mat.Roughness, 'val',  0.0, 1.0, 0.01).name("Roughness");
+        }
+        FloorFolder.add(floor_mat.emission, 'val',  0.0, 1.0, 0.01).name("Emission");
+        FloorFolder.add(floor_mat.isUsingTextures, 'val').name("isUsingTextures");
         
         // Lights
-        Gui.add(light1.transforms.Translation, '0', -100.0, 100.0, 0.01).name("Light1|PosX").onChange(() => {
+
+        const LightsFolder = Gui.addFolder("Lights");
+
+        LightsFolder.add(light1.transforms.Translation, '0', -100.0, 100.0, 0.01).name("Light1|PosX").onChange(() => {
             light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
         })
-        Gui.add(light1.transforms.Translation, '1', -100.0, 100.0, 0.01).name("Light1|PosY").onChange(() => {
+        LightsFolder.add(light1.transforms.Translation, '1', -100.0, 100.0, 0.01).name("Light1|PosY").onChange(() => {
             light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
         })
-        Gui.add(light1.transforms.Translation, '2', -100.0, 100.0, 0.01).name("Light1|PosZ").onChange(() => {
+        LightsFolder.add(light1.transforms.Translation, '2', -100.0, 100.0, 0.01).name("Light1|PosZ").onChange(() => {
             light1.transforms.ModelMatrix = glm.mat4.translate(glm.mat4.create(), light1.transforms.ModelMatrix, light1.transforms.Translation);
         })
-        Gui.add(light1, 'intensity', 0.0, 20.0, 0.01).name("Light1|Intensity");
-        Gui.add(light1.color, '0', -1.0, 1.0, 0.01).name("Light1|ColorR");
-        Gui.add(light1.color, '1', -1.0, 1.0, 0.01).name("Light1|ColorG");
-        Gui.add(light1.color, '2', -1.0, 1.0, 0.01).name("Light1|ColorB");
+        LightsFolder.add(light1, 'intensity', 0.0, 50.0, 0.02).name("Light1|Intensity");
+        LightsFolder.add(light1.color, '0', -1.0, 1.0, 0.01).name("Light1|ColorR");
+        LightsFolder.add(light1.color, '1', -1.0, 1.0, 0.01).name("Light1|ColorG");
+        LightsFolder.add(light1.color, '2', -1.0, 1.0, 0.01).name("Light1|ColorB");
     }
 
     override Render(camera : PerspectiveCamera): void 

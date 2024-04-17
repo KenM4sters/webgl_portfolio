@@ -143,7 +143,7 @@ void main() {
     }   
   
     vec3 ambient = vec3(0.03) * albedoMat * aoMat;
-    vec3 color = ambient + Lo; 
+    vec3 color = ambient + Lo + emissionMat; 
    
     FragColor = vec4(color, 1.0);
 }
