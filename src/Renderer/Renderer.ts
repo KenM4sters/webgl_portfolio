@@ -9,6 +9,7 @@ import AssetManager from "../Layers/AssetManager";
 import PerspectiveCamera from "../Camera/PerspectiveCamera";
 import GUI from "lil-gui";
 import { Geometry, GeometryDrawFunctionTypes } from "../Geometry";
+import { Particles } from "./Systems/Particles";
 
 export default class Renderer 
 {
@@ -115,6 +116,28 @@ export default class Renderer
         RenderCommand.UnbindBuffer(BufferType.Index);
         RenderCommand.ReleaseShader();
 
+    }
+
+    public static DrawParticles(particles : Particles) : void 
+    {
+        var shader = AssetManager.materials.get(particles.materialKey)?.GetShader();
+        if(!shader) throw new Error("ASSET MANAGER | Failed to get asset!");
+        
+        var VAO = particles.vertexArray;
+
+        // Bind the vertex array object and shader program.
+        RenderCommand.BindVertexArray(VAO.GetId());
+        RenderCommand.UseShader(shader.GetId());
+
+        switch(particles.drawFunction.type) 
+        {
+            case GeometryDrawFunctionTypes.DRAW_ARRAYS: RenderCommand.DrawInstanced(particles.drawFunction.shape, VAO.GetVertexBuffer().GetVerticesCount(), particles.nInstances); break;
+        };
+
+        // Cleanup.
+        RenderCommand.UnbindVertexArray();
+        RenderCommand.UnbindBuffer(BufferType.Index);
+        RenderCommand.ReleaseShader();
     }
 
     // Holds all the layers that the renderer will run through.

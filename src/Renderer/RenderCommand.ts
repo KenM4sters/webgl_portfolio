@@ -353,15 +353,26 @@ export class RenderCommand
     // Draw Commands
     public static Draw(shape : GeometryDrawFunctionShapes, nVertices : number) : void 
     {
-        switch(shape) 
+        switch(shape) // This switch statement is a bit redundant at the moment but I think we'll have to change some of the parameters for other shapes. 
         {
             case GeometryDrawFunctionShapes.TRIANGLES: gl.drawArrays(ConvertShapeToNativeShape(shape), 0, nVertices); break; 
-            case GeometryDrawFunctionShapes.TRIANGLES_STRIP: gl.drawArrays(ConvertShapeToNativeShape(shape), 0, nVertices); break; 
+            case GeometryDrawFunctionShapes.TRIANGLES_STRIP: gl.drawArrays(ConvertShapeToNativeShape(shape), 0, nVertices); break;
         }
     }
     public static DrawIndexed(shape : GeometryDrawFunctionShapes, count : number, offset : number) : void
     {
         gl.drawElements(ConvertShapeToNativeShape(shape), count, gl.UNSIGNED_SHORT, offset);
     }
+    public static DrawInstanced(shape : GeometryDrawFunctionShapes, nVertices : number, nInstances : number) : void
+    {
+        switch(shape) // This switch statement is a bit redundant at the moment but I think we'll have to change some of the parameters for other shapes.
+        {
+            case GeometryDrawFunctionShapes.TRIANGLES: gl.drawArraysInstanced(ConvertShapeToNativeShape(shape), 0, 1, nInstances); break; 
+            case GeometryDrawFunctionShapes.TRIANGLES_STRIP: gl.drawArraysInstanced(ConvertShapeToNativeShape(shape), 0, 1, nInstances); break; 
+            case GeometryDrawFunctionShapes.POINTS: gl.drawArraysInstanced(ConvertShapeToNativeShape(shape), 0, 1, nInstances); break; 
+            case GeometryDrawFunctionShapes.LINES: gl.drawArraysInstanced(ConvertShapeToNativeShape(shape), 0, 1, nInstances); break; 
+        }
+    }
+
 
 };

@@ -64,7 +64,7 @@ export default class ScreenPass extends RenderLayer
     private mesh !: Mesh;
     private renderControls : RenderControls = 
         {
-            Exposure : 0.8,
+            Exposure : 0.2,
             BloomStrength:  0.3
         };
 }

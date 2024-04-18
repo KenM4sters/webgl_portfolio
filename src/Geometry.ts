@@ -96,7 +96,6 @@ export class SphereGeometry extends Geometry
         var layout : BufferAttribLayout = new BufferAttribLayout(elements);
         var VBO = new VertexBuffer(vertices);
         VBO.SetLayout(layout);
-        // var EBO = new IndexBuffer(CUBE_INDICES);
 
         this.vertexArray = new VertexArray(VBO);
     }

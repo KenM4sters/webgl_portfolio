@@ -14,6 +14,7 @@ import GUI from "lil-gui";
 import Input from "../Input";
 import { GeometryDrawFunctionShapes, GeometryDrawFunctionTypes, SphereGeometry } from "../Geometry";
 import { Particles } from "../Renderer/Systems/Particles";
+import { Shader } from "../Renderer/Shader";
 
 
 export default class Scene extends RenderLayer
@@ -41,15 +42,15 @@ export default class Scene extends RenderLayer
         geo2.drawFunction = {type: GeometryDrawFunctionTypes.DRAW_ARRAYS, shape: GeometryDrawFunctionShapes.TRIANGLES};
         var mesh2 = new Mesh(geo2, AssetRegistry.MAT_FLOOR);
         mesh2.transforms.Scale = glm.vec3.fromValues(100.0, 0.1, 100.0);
-        mesh2.transforms.Translation = glm.vec3.fromValues(0.0, 0.0, 0.0);
+        mesh2.transforms.Translation = glm.vec3.fromValues(0.0, -10.0, 0.0);
         mesh2.transforms.ModelMatrix =  glm.mat4.translate(glm.mat4.create(), mesh2.transforms.ModelMatrix, mesh2.transforms.Translation);
         this.Push(mesh2);
 
         // Spere
-        var geo3 = new SphereGeometry(10, 50, 50);
+        var geo3 = new SphereGeometry(10, 100, 100);
         geo3.drawFunction = {type: GeometryDrawFunctionTypes.DRAW_ARRAYS, shape: GeometryDrawFunctionShapes.TRIANGLES_STRIP};
         var mesh3 = new Mesh(geo3, AssetRegistry.MAT_SKY);
-        this.Push(mesh3);
+        // this.Push(mesh3);
 
         // Light 1
         var light1 = new PointLight(glm.vec3.fromValues(1.0, 1.0, 1.0), 1.0);
@@ -61,18 +62,22 @@ export default class Scene extends RenderLayer
 
         // Render Systems
         const w : number = 100;
-        const h : number = 100;
-        var positionData = new Float32Array(100*100*3);
+        const d : number = 100;
+        var vertexData : Float32Array = new Float32Array(100*100*3);
 
-        for(let x = 0; x < w; x++) 
+        var vertexindex = 0;
+        for(let col = 0; col < d; col++) 
         {
-            for(let y = 0; y < h; y++) 
+            for(let row = 0; row < w; row++) 
             {
-                
+                vertexData[vertexindex++] = (row - w/2);
+                vertexData[vertexindex++] = 0
+                vertexData[vertexindex++] = (col - d/2);
             }
-        }
-
-        this.particles = new Particles(positionData);
+        }   
+        console.log(vertexData);
+    
+        this.particles = new Particles(vertexData, AssetRegistry.MAT_PARTICLES);
 
         // Since we'll be rendering our scene to an off-screen render buffer, and storing the results
         // in a texture to be used for the "SreenQuad" render layer, we need to define this.renderTarget
@@ -237,6 +242,16 @@ export default class Scene extends RenderLayer
                 RenderCommand.UnBindTexture(TextureType.Tex2D, 3);
             } 
         })
+
+        const particlesMat = AssetManager.materials.get(this.particles.materialKey);
+        const shaderId = particlesMat?.GetShader().GetId();
+        if(!shaderId) throw new Error("Shader was not found!");
+        RenderCommand.UseShader(shaderId);
+        RenderCommand.SetMat4f(shaderId, "model", this.particles.transforms.ModelMatrix);
+        RenderCommand.SetMat4f(shaderId, "view", camera.GetViewMatrix());
+        RenderCommand.SetMat4f(shaderId, "projection", camera.GetProjectionMatrix());
+        RenderCommand.SetVec3f(shaderId, "camera.Position", camera.position);
+        Renderer.DrawParticles(this.particles);
     }
 
     override Resize(): void {

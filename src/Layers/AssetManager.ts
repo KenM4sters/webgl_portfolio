@@ -1,6 +1,7 @@
 import * as glm from "gl-matrix";
 import { Material, PhysicalMaterial, RenderPassMaterial } from "../Material";
 import { Shader, ShaderDataType } from "../Renderer/Shader";
+import { CubeGeometry, Geometry, SphereGeometry, SquareGeometry } from "../Geometry";
 
 // Shaders
 import fullscreenQuadVertSource from "../Shaders/FULL_SCREEN_QUAD.vert?raw";
@@ -11,7 +12,8 @@ import pbrFragSource from "../Shaders/PBR.frag?raw";
 import skyFragSource from "../Shaders/SKY.frag?raw";
 import downsampleFragSource from "../Shaders/DOWNSAMPLING.frag?raw";
 import upsampleFragSource from "../Shaders/UPSAMPLING.frag?raw";
-import { CubeGeometry, Geometry, SphereGeometry, SquareGeometry } from "../Geometry";
+import particlesFragSource from "../Shaders/PARTICLES.frag?raw";
+import particlesVertSource from "../Shaders/PARTICLES.vert?raw";
 
 
 export enum AssetRegistry 
@@ -24,7 +26,8 @@ export enum AssetRegistry
     MAT_HDR = "MAT_HDR",
     MAT_DOWNSAMPLE = "MAT_DOWNSAMPLE",
     MAT_UPSAMPLE = "MAT_UPSAMPLE",
-    MAT_SKY = "MAT_SKY"    
+    MAT_SKY = "MAT_SKY",
+    MAT_PARTICLES = "MAT_PARTICLES"    
 };
 
 export default class AssetManager 
@@ -40,6 +43,7 @@ export default class AssetManager
         var HDR_SHADER = Shader.Create(fullscreenQuadVertSource, hdrFragSource, "HDR_SHADER");
         var DOWNSAMPLE_SHADER = Shader.Create(fullscreenQuadVertSource, downsampleFragSource, "HDR_SHADER");
         var UPSAMPLE_SHADER = Shader.Create(fullscreenQuadVertSource, upsampleFragSource, "HDR_SHADER");
+        var PARTICLES_SHADER = Shader.Create(particlesVertSource, particlesFragSource, "PARTICLES_SHADER");
 
         // Materials
         var CUBE_MAT = new PhysicalMaterial(PBR_SHADER);
@@ -49,10 +53,12 @@ export default class AssetManager
         FLOOR_MAT.Albedo.val = glm.vec3.fromValues(1.0, 0.8, 0.6);
 
         var SKY_MAT = new PhysicalMaterial(SKY_SHADER);
+        var PARTICLES_MAT = new PhysicalMaterial(PARTICLES_SHADER);
 
         AssetManager.materials.set(AssetRegistry.MAT_CUBE, CUBE_MAT);
         AssetManager.materials.set(AssetRegistry.MAT_FLOOR, FLOOR_MAT);
         AssetManager.materials.set(AssetRegistry.MAT_SKY, SKY_MAT);
+        AssetManager.materials.set(AssetRegistry.MAT_PARTICLES, PARTICLES_MAT);
         AssetManager.materials.set(AssetRegistry.MAT_HDR, new RenderPassMaterial(HDR_SHADER));
         AssetManager.materials.set(AssetRegistry.MAT_DOWNSAMPLE, new RenderPassMaterial(DOWNSAMPLE_SHADER));
         AssetManager.materials.set(AssetRegistry.MAT_UPSAMPLE, new RenderPassMaterial(UPSAMPLE_SHADER));

@@ -1,3 +1,5 @@
+import { GeometryDrawFunction, GeometryDrawFunctionShapes, GeometryDrawFunctionTypes } from "../../Geometry";
+import { SetInitialTransforms, Transforms } from "../../Mesh";
 import { VertexBuffer } from "../Buffer";
 
 
@@ -8,5 +10,11 @@ export abstract class RenderSystem
         this.vertexBuffer = new VertexBuffer(data);
     }
 
-    vertexBuffer : VertexBuffer;
+    public vertexBuffer : VertexBuffer;
+    public drawFunction : GeometryDrawFunction = 
+    {
+        type: GeometryDrawFunctionTypes.DRAW_ARRAYS_INSTANCED, 
+        shape: GeometryDrawFunctionShapes.POINTS
+    }
+    public transforms : Transforms = SetInitialTransforms(); 
 };
